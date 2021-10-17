@@ -1,0 +1,41 @@
+<main class="news">
+    <div class="cate m-mn">
+        {volist name="cates" id="vo"}
+        <a href="news?id={$vo.id}" title="{$vo.name}" class="">{$vo.name}</a>
+        <!-- <a href="news.html" title="公司动态" class="on"    >公司动态</a><a href="news2.html" title="技术文章"     >技术文章</a><a href="news3.html" title="测试报告"     >测试报告</a>        -<a href="" title="">技术文章</a> -->
+        <!-- <a href="" title="">测试报告</a> -->
+        {/volist}
+    </div>
+
+    <div class="container">
+        <div class="m-list">{notempty name="$data"}  
+            <ul>  
+                
+                {volist name="data" id="vo"}   
+                    <a href="news?nid={$vo.id}" title="{$vo.title}" target="_blank" style=" overflow: hidden;">
+                        <li>
+                            <div class="n-img f-fl "><img src="{$vo.thumb|geturl}" alt="公司简介" /></div>
+                            <div class="n-txt f-fl">
+                                <p class="news-tt">{$vo.title}</p>
+                                <p class="text" style=" overflow: hidden;">{:strip_tags($vo.content)}</p>
+                                <p class="news-sub"><span>{$vo.create_time}</span><span class="aa f-fr">查看详情 >></span></p>
+                            </div>
+                        </li>
+                    </a>                              
+
+                    {/volist}
+
+            </ul>{/notempty}
+            {notempty name="$art"} 
+            {$art.title}
+            {$art.content}
+            {/notempty}
+            <div class="f-cb"></div>
+            <div class="page">
+                <div> </div>
+            </div>
+        </div>
+
+    </div>
+
+</main>
