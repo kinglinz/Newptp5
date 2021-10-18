@@ -7,13 +7,19 @@ class Login extends  Controller
 {
 
     //测试加密token
-    public function mi(){
-        //$str="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJKb3V6ZXl1IiwiYXVkIjoiIiwiaWF0IjoxNjM0Mjk2NDAxLCJuYmYiOjE2MzQyOTY0MDQsImV4cCI6MTAwMzQzNTA3MjYsInVpZCI6ImFkbWluIn0.wdYQWd8RxEWd_ZR9IxF0B9WVmVbFprOABu3z2dLab3M";
-        $id=Request()->param('id');
-        
-         createToken($id);
-        return $this->token();
+    public function encode($uid){  
+        return createToken($uid);
     }
+
+    public function decode(){
+        $uid = $this->request->cookie('token');
+        if($uid){
+            return $this->token($uid);
+        }
+    }
+
+  
+
 
     /*
     * 授权登录
@@ -104,8 +110,8 @@ class Login extends  Controller
     /*解密token
     *   放到公共类内
     */
-    protected function token(){
-        $arr = $this->request->header('token');
+    protected function token($arr){
+        //$arr = $this->request->header('token');
         //$arr="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJKb3V6ZXl1IiwiYXVkIjoiIiwiaWF0IjoxNjM0Mjk2NDAxLCJuYmYiOjE2MzQyOTY0MDQsImV4cCI6MTAwMzQzNTA3MjYsInVpZCI6ImFkbWluIn0.wdYQWd8RxEWd_ZR9IxF0B9WVmVbFprOABu3z2dLab3M";
      
         if($arr==null){

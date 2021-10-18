@@ -1,46 +1,146 @@
 <?php
-    namespace app\api\controller;
-    use app\user\model\User as userModel;
-    use think\Db;
-    use app\user\model\Profile as ProfileModel;
 
+namespace app\api\controller;
 
-class User extends \app\jk\controller\Login{
-        public function login(){
-            parent::login();
-        }
+use app\user\model\User as userModel;
+use think\Db;
+use app\user\model\Profile as ProfileModel;
+use think\Cookie;
 
+class User extends \app\jk\controller\Login
+{
+    public function reg()
+    {
+        if ($this->request->param('username')) {
 
-        public function getProfile(){     
-            $id = $this->token();
             $user = new userModel();
-            return json($user->get($id)->profile()->select()[0]);
-
-        }
-        public function register(){
-            if($this->request->isPost()){
-                $post = $this->request->post();
-                $ide = ProfileModel::where(['identity' => $post['identity']])->find();
-                if($ide){
-                    return json(['code'=>420,'errormsg'=>'证件已被注册']);
+            if ($user->allowField(true)->save($this->request->get())) {
+                $enuid = $this->encode($user->id);
+                if ($user->isUpdate(true)->allowField(true)->save(['openid' => $enuid])) {
+                    Cookie::set('token', $enuid);
+                    return json(['code' => 200, 'msg' => '注测成功']);
+                } else {
+                    return json(['code' => 400, 'msg' => '注测失败', 'error' =>
+                    $user->getLastSql(), 'enuid' => $user->getError()]);
                 }
-                $validate = new \think\Validate([
-                    ['name','require','请填写姓名'],
-                    ['addr','require','请填写地址'],
-                    ['idpic','require','请上传照片'],
-                    ['edu','require','请填写学历'],
-                    ['identity','require','请填写证件信息'],
-                ]);
-
-                if(!$validate->check($post)){
-                    return json(['code'=>421,'errormsg'=>$validate->getError()]);
-                }
-                $promodel = new ProfileModel();
-                if($promodel->allowField(true)->save()){
-                    return json(['code'=>200,'msg'=>'注册成功']);
-                }
-            }else{
-                return json(['code'=>400,'msg'=>'not found']);
-            }        
+            }
+        } else {
+            return json(['code' => 400, 'msg' => 'id不正确']);
         }
     }
+
+    public function log()
+    {
+
+        $get = $this->request->get();
+
+        $username = $get['username'];
+        $password = $get['password'];
+        $ret = Db::query(
+            "SELECT openid from tplay_user WHERE username='$username' AND password='$password'"
+        );
+
+        if ($ret) {
+            Cookie::set('token', $ret[0]['openid'], 3600);
+            return json(['code' => 200, 'msg' => '登录成功']);
+        } else {
+            Cookie::clear();
+            return json(['code' => 200, 'msg' => '登录失败', 'jump' => url('reg')]);
+        }
+    }
+
+    public function getProfile()
+    {
+        if($this->isLogin()){
+            if ($this->request->isPost()) {
+                //更改资料
+                $post = $this->request->post();
+                if ($post) {
+                    $promodel = new ProfileModel();
+                    $ide = $promodel->where(['identity' => $post['identity']])->find();
+                    if ($ide) {
+                        return json(['type' => 'error', 'errormsg' => '证件已被注册'],401);
+                    }
+                    $validate = new \think\Validate([
+                        ['name', 'require', '请填写姓名'],
+                        ['addr', 'require', '请填写地址'],
+                        ['idpic', 'require', '请上传照片'],
+                        ['edu', 'require', '请填写学历'],
+                        ['identity', 'require', '请填写证件信息'],
+                    ]);
+    
+                    if(!$validate->check($post)){
+                        return json(['type' => 'error' , 'msg' => $validate->getError()],401);
+                    }
+
+                    $ret =  $promodel->allowField(true)->save($post);
+                    if($ret){
+                        return json(['type' => 'success', 'msg' => '修改成功'],200);
+                    }
+
+
+                } else {
+                    return json(['type' => 'error', 'msg' => '参数不正确'],401);
+                }
+            } else {
+                //获取资料
+                $token = $this->request->cookie('token');
+                $id = $this->token($token);
+                $user = new userModel();
+                return json($user->get($id)->profile()->find());
+            }
+        } else{
+            return $this->error(66);
+          return  json(['type' => 'error', 'msg' => '请先登录', 'jump' => url('log')],401);
+        }   
+    }
+    public function register()
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            if ($post) {
+                $promodel = new ProfileModel();
+                $ide = $promodel->where(['identity' => $post['identity']])->find();
+                if ($ide) {
+                    return json(['code' => 420, 'errormsg' => '证件已被注册']);
+                }
+                $validate = new \think\Validate([
+                    ['name', 'require', '请填写姓名'],
+                    ['addr', 'require', '请填写地址'],
+                    ['idpic', 'require', '请上传照片'],
+                    ['edu', 'require', '请填写学历'],
+                    ['identity', 'require', '请填写证件信息'],
+                ]);
+
+                if (!$validate->check($post)) {
+                    return json(['code' => 421, 'errormsg' => $validate->getError()]);
+                }
+
+                if ($promodel->allowField(true)->save()) {
+                    return json(['code' => 200, 'msg' => '注册成功']);
+                }
+            } else {
+                return json(['code' => 400, 'msg' => 'not found']);
+            }
+        }else {
+            return json(['code' => 400, 'errormsg' => '请求参数错误']);
+        }
+    }
+
+    private function isLogin(){
+        
+        $token = $this->request->cookie('token');
+        
+        if($token){
+            
+            $ret = userModel::get(['openid' => $token])->find();
+            if($ret){
+                return true;
+            }else {
+                return false;
+            }
+        }else{
+            return false;
+        }
+    }
+}

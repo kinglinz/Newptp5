@@ -21,6 +21,7 @@ class Datamanage extends Controller
         //dump($result);die;
         $userModel = new UserModel();
         $result = $userModel->order('id desc')->paginate(20);
+        //dump($result);
         $this->assign('data', $result);
         return $this->fetch();
     }
