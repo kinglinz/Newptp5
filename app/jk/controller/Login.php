@@ -52,9 +52,9 @@ class Login extends  Controller
                 'openid' => $arr['openid'],
                 'username'=>$username,
                 'image'=>$image,
-                'shop_name'=>$username.'的小店',
-                'is_show'=>'true',
-                'sex'=>$sex,
+                //'shop_name'=>$username.'的小店',
+                //'is_show'=>'true',
+                //'sex'=>$sex,
                 'create_time'=>time()
             ];
             $user_id = DB::name('user')->insertgetId($data);

@@ -72,7 +72,7 @@ class Courseinfo extends Controller
                     ['name', 'require', '标题不能为空'],
                     ['image', 'require', '请上传缩略图'],
                     ['video', 'require', '视频不能为空'],
-                    ['video', 'url', '必须是网址'],
+                  
                 ]);
 
                 if (!$validate->check($post)) {

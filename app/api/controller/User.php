@@ -12,7 +12,6 @@ class User extends \app\jk\controller\Login
     public function reg()
     {
         if ($this->request->param('username')) {
-
             $user = new userModel();
             if ($user->allowField(true)->save($this->request->get())) {
                 $enuid = $this->encode($user->id);
@@ -49,60 +48,19 @@ class User extends \app\jk\controller\Login
         }
     }
 
-    public function getProfile()
+    public function Profile()
     {
-        if($this->isLogin()){
-            if ($this->request->isPost()) {
-                //更改资料
-                $post = $this->request->post();
-                if ($post) {
-                    $promodel = new ProfileModel();
-                    $ide = $promodel->where(['identity' => $post['identity']])->find();
-                    if ($ide) {
-                        return json(['type' => 'error', 'errormsg' => '证件已被注册'],401);
-                    }
-                    $validate = new \think\Validate([
-                        ['name', 'require', '请填写姓名'],
-                        ['addr', 'require', '请填写地址'],
-                        ['idpic', 'require', '请上传照片'],
-                        ['edu', 'require', '请填写学历'],
-                        ['identity', 'require', '请填写证件信息'],
-                    ]);
-    
-                    if(!$validate->check($post)){
-                        return json(['type' => 'error' , 'msg' => $validate->getError()],401);
-                    }
-
-                    $ret =  $promodel->allowField(true)->save($post);
-                    if($ret){
-                        return json(['type' => 'success', 'msg' => '修改成功'],200);
-                    }
-
-
-                } else {
-                    return json(['type' => 'error', 'msg' => '参数不正确'],401);
-                }
-            } else {
-                //获取资料
-                $token = $this->request->cookie('token');
-                $id = $this->token($token);
-                $user = new userModel();
-                return json($user->get($id)->profile()->find());
-            }
-        } else{
-            return $this->error(66);
-          return  json(['type' => 'error', 'msg' => '请先登录', 'jump' => url('log')],401);
-        }   
-    }
-    public function register()
-    {
+        $this->login();
         if ($this->request->isPost()) {
+            //更改资料
             $post = $this->request->post();
+            $userid = $this->token();
+            $usermodel = userModel::get($userid);
             if ($post) {
                 $promodel = new ProfileModel();
                 $ide = $promodel->where(['identity' => $post['identity']])->find();
                 if ($ide) {
-                    return json(['code' => 420, 'errormsg' => '证件已被注册']);
+                    return json(['type' => 'error', 'errormsg' => '证件已被注册'], 401);
                 }
                 $validate = new \think\Validate([
                     ['name', 'require', '请填写姓名'],
@@ -113,33 +71,76 @@ class User extends \app\jk\controller\Login
                 ]);
 
                 if (!$validate->check($post)) {
-                    return json(['code' => 421, 'errormsg' => $validate->getError()]);
+                    return json(['type' => 'error', 'msg' => $validate->getError()]);
                 }
-
-                if ($promodel->allowField(true)->save()) {
-                    return json(['code' => 200, 'msg' => '注册成功']);
+                $promodel->name = $post['name'];
+                $promodel->addr = $post['addr'];
+                $promodel->idpic = $post['idpic'];
+                $promodel->edu = $post['edu'];
+                $promodel->identity = $post['identity'];
+                $promodel->phone = $post['phone'];
+                $ret = $usermodel->profile()->save($promodel);
+                if ($ret) {
+                    return json(['type' => 'success', 'msg' => '修改成功'], 200);
                 }
             } else {
-                return json(['code' => 400, 'msg' => 'not found']);
+                return json(['type' => 'error', 'msg' => '参数不正确'], 401);
             }
-        }else {
-            return json(['code' => 400, 'errormsg' => '请求参数错误']);
+        } else {
+            //获取资料
+            $token = $this->request->cookie('token');
+            $id = $this->token($token);
+            $user = new userModel();
+            return json($user->get($id)->profile()->find());
         }
     }
+   //  public function register()
+//     {
+//         if ($this->request->isPost()) {
+//             $post = $this->request->post();
+//             if ($post) {
+//                 $promodel = new ProfileModel();
+//                 $ide = $promodel->where(['identity' => $post['identity']])->find();
+//                 if ($ide) {
+//                     return json(['code' => 420, 'errormsg' => '证件已被注册']);
+//                 }
+//                 $validate = new \think\Validate([
+//                     ['name', 'require', '请填写姓名'],
+//                     ['addr', 'require', '请填写地址'],
+//                     ['idpic', 'require', '请上传照片'],
+//                     ['edu', 'require', '请填写学历'],
+//                     ['identity', 'require', '请填写证件信息'],
+//                 ]);
 
-    private function isLogin(){
-        
+//                 if (!$validate->check($post)) {
+//                     return json(['code' => 421, 'errormsg' => $validate->getError()]);
+//                 }
+
+//                 if ($promodel->allowField(true)->save()) {
+//                     return json(['code' => 200, 'msg' => '注册成功']);
+//                 }
+//             } else {
+//                 return json(['code' => 400, 'msg' => 'not found']);
+//             }
+//         } else {
+//             return json(['code' => 400, 'errormsg' => '请求参数错误']);
+//         }
+//     }
+
+    private function isLogin()
+    {
+
         $token = $this->request->cookie('token');
-        
-        if($token){
-            
+
+        if ($token) {
+
             $ret = userModel::get(['openid' => $token])->find();
-            if($ret){
+            if ($ret) {
                 return true;
-            }else {
+            } else {
                 return false;
             }
-        }else{
+        } else {
             return false;
         }
     }
