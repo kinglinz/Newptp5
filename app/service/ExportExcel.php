@@ -68,30 +68,29 @@ class ExportExcel
     // 执行数据导入
     public function doImport()
     {
-        set_time_limit(0); // 设置超时时间(无限制)
-        $excel = request()->file('file')->getInfo(); //excel为file中的name
 
         set_time_limit(90);
+        $excel = request()->file('file')->getInfo(); //excel为file中的name
+
         $objPHPExcel = \PHPExcel_IOFactory::load($excel['tmp_name']);
 
-        $sheet_count = $objPHPExcel->getSheetCount();
-        for ($s = 0; $s < $sheet_count; $s++) {
-            $currentSheet = $objPHPExcel->getSheet($s); // 当前页 
+        //$sheet_count = $objPHPExcel->getSheetCount();
+       // for ($s = 0; $s < $sheet_count; $s++) {
+            $currentSheet = $objPHPExcel->getSheet(0); // 当前页 
             $row_num = $currentSheet->getHighestRow(); // 当前页行数 
             $col_max = $currentSheet->getHighestColumn(); // 当前页最大列号 
-            $cell_values = array();
-            $cells = array();
+        
             // 循环从第二行开始，第一行往往是表头 
-            for ($i = 2,$d=0; $i <= $row_num;$d++, $i++) {        
+            for ($i = 1,$d=0; $i <= $row_num;$d++, $i++) {        
                 for ($j = 'A'; $j <= $col_max; $j++) {
                     $address = $j . $i; // 单元格坐标 
-                    $cell_values[] = $currentSheet->getCell($address)->getFormattedValue();
+                    $cell_values[$d][]= $currentSheet->getCell($address)->getFormattedValue();
                 }
-                array_push($cells[$d],$cell_values);
+               
             }
 
-            return $cells;
-        }
+            return $cell_values;
+        //}
     }
 
     /**

@@ -35,9 +35,9 @@ class Exams extends Controller
                 $arr[$j]['status'] = $post['status'];
                 $j++;
             }
-            $examModel = new ExamsModel();
-            $examModel->saveAll($arr);
-            dump($arr);
+            // $examModel = new ExamsModel();
+            // $examModel->saveAll($arr);
+            dump($post);
         }
     }
 
@@ -52,7 +52,6 @@ class Exams extends Controller
             return json(['msg' => $ex->getMessage(), 'code' => $ex->getCode()]);
         }
 
-        dump($result);
         $examModel = new ExamsModel();
         $examModel->saveAll($result);
     }
@@ -60,34 +59,22 @@ class Exams extends Controller
 
     /**
      * 构建模型写入数组
-     * @param $status 1选择题 0判断题
      * @param $data 导入二维数组
      * @return array
      */
 
     private function checkData($data)
     {
-        //dump($data);
+        
         $i = 0;
 
         foreach ($data as $arr) {
-            $status = 0;
-            $ret = 0;
-            foreach ($arr as $str) {
-                if (0 == (trim($str))) {
-                    $status++;
-                }
-            }
-
-            if ($status > 2) {
-                $status = 0;
-                $ret = 4;
-            } else $status = 1;
-            //dump('test=='.$status);
-            if (empty($arr) || count($arr) < 4 || !$this->checkArr($arr, $status)) {
+            $status = $this->checkArr($arr);
+            
+            if (empty($arr) || count($arr) < 4 || $status['status']) {
                 continue;
             } else {
-                if (4 == $ret) {
+                if (4 == $status['tmp']) {
                     $result[$i]['descrption'] = $arr[0];
                     $result[$i]['a'] = $arr[1];
                     $result[$i]['b'] = $arr[2];
@@ -103,7 +90,11 @@ class Exams extends Controller
                     $result[$i]['c'] = $arr[3];
                     $result[$i]['d'] = $arr[4];
                     $result[$i]['da'] = $arr[5];
-                    $result[$i]['status'] = 1;
+                    if (strlen($arr[5]) > 1) {
+                        $result[$i]['status'] = 2;
+                    } else {
+                        $result[$i]['status'] = 1;
+                    }
                 }
                 $i++;
             }
@@ -123,30 +114,23 @@ class Exams extends Controller
      * @param $arr 被检查数组
      * @return bool
      */
-    private function checkArr($array, $status)
+    private function checkArr($array)
     {
+        $tmp1 = [
+            'tmp' => 0,
+            'count' => 0,
+            'status' => false
+        ];
 
-        $tmp1 = 0;
-        $tmp0 = 0;
-
-        if (1 == $status) {
-            foreach ($array as $str) {
-                if (0 == strlen(trim($str))) {
-                    $tmp1++;
-                }
+        foreach ($array as $str) {
+            if (strlen(trim($str)) == 0) {
+                $tmp1['count']++;
             }
         }
-        if (0 == $status) {
-            foreach ($array as $str) {
-                if (0 == strlen(trim($str))) {
-                    $tmp0++;
-                }
-            }
-        }
-
-        if ($tmp0 > 2 || $tmp1 >= 1)
-            return false;
-        else
-            return true;
+        $tmp['tmp'] = count($array) - $tmp1['count'];
+        if ($tmp['tmp'] < 4)
+            $tmp1['status'] = true;
+       
+        return $tmp1;
     }
 }
