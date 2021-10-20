@@ -6,7 +6,9 @@ use think\Controller;
 use app\admin\model\Course as CourseModel;
 use app\admin\model\CourseInfo as CourseinfoModel;
 use think\Db;
-
+/**
+ * 课时控制器
+ */
 class Courseinfo extends Controller
 {
     public function index()

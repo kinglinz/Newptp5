@@ -44,7 +44,6 @@ class Course extends Controller
     public function publish()
     {
         $id = $this->request->has('id') ? $this->request->param('id', 0, 'intval') : 0;
-       
         $course = new CourseModel();
         if ($id > 0) {
             if ($this->request->isPost()) { //修改
@@ -78,7 +77,6 @@ class Course extends Controller
            
             if ($this->request->isPost()) { //新增
                 //获取提交参数
-                //dump($this->request->post());die;
                 $post = $this->request->post();
                 $check =  [
                     ['name', 'require', '标题不能为空'],
@@ -88,9 +86,6 @@ class Course extends Controller
                     ['num', 'number', '课时必须是数字'],
                     ['price', 'number', '价格必须是数字']
                 ];
-                // if($post['status'] == 1){
-                //     array_push($check,['price','require','请填写金额']);
-                // }
                 $validate = new \think\Validate($check);
                 $post['admin_id'] = Session::get('admin');
                 if (!$validate->check($post)) {
@@ -123,7 +118,6 @@ class Course extends Controller
             if (false == Db::name('course')->where('id', $post['id'])->update(['is_top' => $post['is_top']])) {
                 return $this->error('设置失败');
             } else {
-                //addlog($post['id']); //写入日志
                 return $this->success('设置成功', 'admin/course/index');
             }
         }

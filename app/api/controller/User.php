@@ -3,58 +3,23 @@
 namespace app\api\controller;
 
 use app\user\model\User as userModel;
-use think\Db;
+use app\admin\model\BuycourseProfile as BuyPModel;
+use app\admin\model\BuyCourse as buyCourseModel;
 use app\user\model\Profile as ProfileModel;
 use think\Cookie;
+use think\Db;
 
 class User extends \app\jk\controller\Login
 {
-    public function reg()
-    {
-        if ($this->request->param('username')) {
-            $user = new userModel();
-            if ($user->allowField(true)->save($this->request->get())) {
-                $enuid = $this->encode($user->id);
-                if ($user->isUpdate(true)->allowField(true)->save(['openid' => $enuid])) {
-                    Cookie::set('token', $enuid);
-                    return json(['code' => 200, 'msg' => '注测成功']);
-                } else {
-                    return json(['code' => 400, 'msg' => '注测失败', 'error' =>
-                    $user->getLastSql(), 'enuid' => $user->getError()]);
-                }
-            }
-        } else {
-            return json(['code' => 400, 'msg' => 'id不正确']);
-        }
-    }
-
-    public function log()
-    {
-
-        $get = $this->request->get();
-
-        $username = $get['username'];
-        $password = $get['password'];
-        $ret = Db::query(
-            "SELECT openid from tplay_user WHERE username='$username' AND password='$password'"
-        );
-
-        if ($ret) {
-            Cookie::set('token', $ret[0]['openid'], 3600);
-            return json(['code' => 200, 'msg' => '登录成功']);
-        } else {
-            Cookie::clear();
-            return json(['code' => 200, 'msg' => '登录失败', 'jump' => url('reg')]);
-        }
-    }
-
+    /**
+     * 修改注册个人信息
+     */
     public function Profile()
     {
-        $this->login();
         if ($this->request->isPost()) {
             //更改资料
             $post = $this->request->post();
-            $userid = $this->token();
+            $userid = $this->token($this->request->cookie('token'));
             $usermodel = userModel::get($userid);
             if ($post) {
                 $promodel = new ProfileModel();
@@ -94,54 +59,53 @@ class User extends \app\jk\controller\Login
             return json($user->get($id)->profile()->find());
         }
     }
-   //  public function register()
-//     {
-//         if ($this->request->isPost()) {
-//             $post = $this->request->post();
-//             if ($post) {
-//                 $promodel = new ProfileModel();
-//                 $ide = $promodel->where(['identity' => $post['identity']])->find();
-//                 if ($ide) {
-//                     return json(['code' => 420, 'errormsg' => '证件已被注册']);
-//                 }
-//                 $validate = new \think\Validate([
-//                     ['name', 'require', '请填写姓名'],
-//                     ['addr', 'require', '请填写地址'],
-//                     ['idpic', 'require', '请上传照片'],
-//                     ['edu', 'require', '请填写学历'],
-//                     ['identity', 'require', '请填写证件信息'],
-//                 ]);
 
-//                 if (!$validate->check($post)) {
-//                     return json(['code' => 421, 'errormsg' => $validate->getError()]);
-//                 }
 
-//                 if ($promodel->allowField(true)->save()) {
-//                     return json(['code' => 200, 'msg' => '注册成功']);
-//                 }
-//             } else {
-//                 return json(['code' => 400, 'msg' => 'not found']);
-//             }
-//         } else {
-//             return json(['code' => 400, 'errormsg' => '请求参数错误']);
-//         }
-//     }
 
-    private function isLogin()
+    public function myscore(){
+        
+    }
+
+    public function test()
     {
-
         $token = $this->request->cookie('token');
+        return $token;
+        $uid = $this->token($token);
+    }
 
-        if ($token) {
-
-            $ret = userModel::get(['openid' => $token])->find();
-            if ($ret) {
-                return true;
-            } else {
-                return false;
+    public function reg()
+    {
+        if ($this->request->param('username')) {
+            $user = new userModel();
+            if ($user->allowField(true)->save($this->request->get())) {
+                $enuid = $this->encode($user->id);
+                if ($user->isUpdate(true)->allowField(true)->save(['openid' => $enuid])) {
+                    Cookie::set('token', $enuid);
+                    return json(['code' => 200, 'msg' => '注测成功']);
+                } else {
+                    return json(['code' => 400, 'msg' => '注测失败', 'error' =>
+                    $user->getLastSql(), 'enuid' => $user->getError()]);
+                }
             }
         } else {
-            return false;
+            return json(['code' => 400, 'msg' => 'id不正确']);
+        }
+    }
+
+    public function log()
+    {
+        $get = $this->request->get();
+        $username = $get['username'];
+        $password = $get['password'];
+        $ret = Db::query(
+            "SELECT openid from tplay_user WHERE username='$username' AND password='$password'"
+        );
+        if ($ret) {
+            Cookie::set('token', $ret[0]['openid'], 3600);
+            return json(['code' => 200, 'msg' => '登录成功']);
+        } else {
+            Cookie::clear();
+            return json(['code' => 200, 'msg' => '登录失败', 'jump' => url('reg')]);
         }
     }
 }
