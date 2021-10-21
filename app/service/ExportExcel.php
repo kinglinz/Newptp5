@@ -106,6 +106,7 @@ class ExportExcel
         //         ->select();
         //第一行的列数据ID
         $data = Db::query('select b.id,c.name as coursename,b.create_time,user.name from tplay_buy_course as b INNER JOIN tplay_course as c ON(b.course_id=c.id) INNER JOIN tplay_user as u ON(b.user_id=u.id) INNER JOIN tplay_profile as user ON(u.profile_id=user.id);');
+        dump($data);
         if ($data) {
             $header = array('ID', '报名课程', '报名人', '创建时间');
 

@@ -10,25 +10,76 @@ use app\admin\model\Course as CourseModel;
 use app\admin\model\Exams as ExamsModel;
 use Exception;
 
+
 class Exams extends Controller
 {
     public function index()
     {
 
+        $post = $this->request->post();
+        if (isset($post['keywords']) && !empty($post['keywords'])) {
+            $where['descrption'] =  ["like", "%" . $post['keywords'] . "%"];
+        }
+
+        if (isset($post['course_id']) && !empty($post['course_id'])) {
+            $where['course_id'] = $post['course_id'];
+        }
+
+        if (isset($post['exam'])) {
+            if (!empty($post['exam']) || $post['exam'] == 0)
+                $where['status'] = $post['exam'];
+        }
         $courseModel = new CourseModel();
-        $data = $courseModel->field('id,name')->select();
+        $data1 = $courseModel->all();
+        $exModel = new ExamsModel();
+        $data = empty($where) ? $exModel->field('id,descrption,status,course_id')->paginate(20) :
+            $exModel->field('id,descrption,status,course_id')->where($where)->paginate(20);      
+        $this->assign("data1", $data1);
         $this->assign("data", $data);
         return $this->fetch();
     }
 
+    public function edit()
+    {
+        $id = $this->request->param('id');
+        if ($id) {
+            $examModel = ExamsModel::get($id);
+            if ($this->request->isPost()) {
+                $post = $this->request->post();
+                array_shift($post);
+                if ($examModel->save($post, ['id' => $id]))
+                    return json(['code' => 2, 'msg' => '修改成功', 'url' => url('admin/exams/index')]);
+                else
+                    return json(['code' => -1, 'msg' => '修改失败', 'url' => url('admin/exams/index')]);
+            } else {
+                $courseModel = new CourseModel();
+                $course = $courseModel->select();
+                $this->assign('course', $course);
+                $this->assign('data', $examModel);
+                return $this->fetch();
+            }
+        } else {
+            return "错误";
+        }
+    }
 
+    public function delete()
+    {
+        $id = $this->request->param('id');
+        $examModel = ExamsModel::get($id);
+
+        if ($examModel->delete($id))
+            return json(['code' => 1, 'msg' => '删除成功', 'url' => url('admin/exams/index')]);
+        else
+            return json(['code' => -1, 'msg' => '删除失败', 'url' => url('admin/exams/index')]);
+    }
 
     public function publish()
     {
-        
+
         if ($this->request->isPost()) {
             $post = $this->request->post();
-            if (empty($post['cid'])) {
+            if (empty($post['course_id'])) {
                 return   json(['code' => -1, 'msg' => '请选择练习分类']);
             }
             $arr = array();
@@ -42,13 +93,13 @@ class Exams extends Controller
                 $arr[$j]['c'] = $post['txtc' . $i];
                 $arr[$j]['d'] = $post['txtd' . $i];
                 $arr[$j]['da'] = $post['da' . $i];
-                $arr[$j]['cid'] = $post['cid'];
+                $arr[$j]['course_id'] = $post['course_id'];
                 $j++;
             }
-            try {              
-                $result = $this->checkData($arr, $post['cid']);
+            try {
+                $result = $this->checkData($arr, $post['course_id']);
             } catch (Exception $ex) {
-                return json(['code'=>-1,'msg' => $ex->getMessage()]);
+                return json(['code' => -1, 'msg' => $ex->getMessage()]);
             }
             $examModel = new ExamsModel();
             if ($examModel->saveAll($result)) {
@@ -56,27 +107,32 @@ class Exams extends Controller
             } else {
                 return json(['code' => -1, 'msg' => '添加失败']);
             }
+        } else {
+            $courseModel = new CourseModel();
+            $data = $courseModel->field('id,name')->select();
+            $this->assign("data", $data);
+            return $this->fetch();
         }
     }
 
-    
+
     /**
      * 练习导入excel接口
      */
     public function uploadExecl()
     {
         $post = $this->request->post();
-        if (empty($post['cid'])) {
+        if (empty($post['course_id'])) {
             return   json(['code' => -1, 'msg' => '请选择练习分类']);
         }
         $execl = new ExportExcel();
         $fileinfo = request()->file('file')->getInfo();
         try {
             $data =  $execl->doImport($fileinfo['tmp_name']);
-            $result = $this->checkData($data, $post['cid']);
+            $result = $this->checkData($data, $post['course_id']);
         } catch (Exception $ex) {
             return json(['msg' => $ex->getMessage(), 'code' => $ex->getCode()]);
-           // return json(['code' => -1, 'msg' => 'test']);
+            // return json(['code' => -1, 'msg' => 'test']);
         }
 
         $examModel = new ExamsModel();
@@ -91,14 +147,14 @@ class Exams extends Controller
     /**
      * 构建模型写入数组
      * @param $data 二维数组
-     * @param $cid  课程id
+     * @param $course_id  课程id
      * @return array
      */
 
-    private function checkData($data, $cid)
+    private function checkData($data, $course_id)
     {
         $i = 0;
-        
+
         foreach ($data as $temp) {
             $arr = $this->arrk2num($temp);
             $status = $this->checkArr($arr);
@@ -114,7 +170,7 @@ class Exams extends Controller
                     $result[$i]['d'] = '';
                     $result[$i]['da'] = $arr[5];
                     $result[$i]['status'] = 0;
-                    $result[$i]['cid'] = $cid;
+                    $result[$i]['course_id'] = $course_id;
                     // dump($result);
                 } else {
                     $result[$i]['descrption'] = $arr[0];
@@ -123,7 +179,7 @@ class Exams extends Controller
                     $result[$i]['c'] = $arr[3];
                     $result[$i]['d'] = $arr[4];
                     $result[$i]['da'] = $arr[5];
-                    $result[$i]['cid'] = $cid;
+                    $result[$i]['course_id'] = $course_id;
                     if (strlen($arr[5]) > 1) {
                         $result[$i]['status'] = 2;
                     } else {
@@ -133,7 +189,7 @@ class Exams extends Controller
                 $i++;
             }
         }
-      
+
         if (isset($result) && !empty($result)) {
             return $result;
         } else {

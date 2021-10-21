@@ -1,289 +1,129 @@
 <!DOCTYPE html>
 <html>
-
 <head>
   <meta charset="utf-8">
   <title>layui</title>
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <link rel="stylesheet" href="__PUBLIC__/layui/css/layui.css" media="all">
+  <link rel="stylesheet" href="__PUBLIC__/layui/css/layui.css"  media="all">
   <link rel="stylesheet" href="__PUBLIC__/font-awesome/css/font-awesome.min.css" media="all" />
-  <link rel="stylesheet" href="__CSS__/admin.css" media="all">
+  <link rel="stylesheet" href="__CSS__/admin.css"  media="all">
+  <style type="text/css">
 
-  <style>
-    table {
-      table-layout: fixed;
-      white-space: nowrap;
-    }
-
-    td {
-      height: 70px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    textarea {
-      width: 100%;
-      height: 100%;
-    }
-  </style>
+/* tooltip */
+#tooltip{
+  position:absolute;
+  border:1px solid #ccc;
+  background:#333;
+  padding:2px;
+  display:none;
+  color:#fff;
+}
+</style>
 </head>
-
 <body style="padding:10px;">
   <div class="tplay-body-div">
     <div class="layui-tab">
       <ul class="layui-tab-title">
-        <li><a href="{:url('admin/exams/test')}" class="a_menu">练习管理</a></li>
-        <li class="layui-this">新增练习</li>
-
+        <li class="layui-this">练习列表</li>
+        <li><a href="{:url('admin/exams/publish')}" class="a_menu">新增练习</a></li>
       </ul>
     </div>
-    <div style="margin-top: 20px;">
-    </div>
-    <form class="layui-form" action="{:url('admin/exams/publish')}" method="post" id="admin">
+    <form class="layui-form serch" action="{:url('')}" method="post">
       <div class="layui-form-item" style="float: left;">
-        <div class="layui-input-inline">
-          <label class="layui-form-label">练习分类</label>
-          <div class="layui-input-block" style="max-width:600px;" class="layui-form-item">
-            <select class="layui-form-item" name="cid" id="sel" lay-filter="demo">
 
-              <option value="" selected="">请选择</option>
-              {volist name="data" id="vo"}
+        <div class="layui-input-inline">
+          <label class="layui-form-label">课程分类</label>
+          <div class="layui-input-block" style="max-width:600px;" class="layui-form-item">
+            <select class="layui-form-item" name="course_id" id="sel" lay-filter="demo">
+              <option value="" selected="">请选择</option>     
+              {volist name="data1" id="vo"}       
               <option value="{$vo.id}">{$vo.name}</option>
               {/volist}
             </select>
           </div>
         </div>
 
+        <div class="layui-input-inline">
+          <label class="layui-form-label">题型</label>
+          <div class="layui-input-block" style="max-width:600px;" class="layui-form-item">
+            <select class="layui-form-item" name="exam" id="sel" lay-filter="demo">
+              <option value="" selected="">请选择</option>                  
+              <option value="0">判断题</option>
+               <option value="1">单选题</option>
+               <option value="2">多选题</option>
+            </select>
+          </div>
+        </div>
 
+        <div class="layui-input-inline">
+          <input type="text" name="keywords" lay-verify="title" autocomplete="off" placeholder="请输入关键词"
+            class="layui-input layui-btn-sm">
+        </div>
 
-        <button type="button" id="bt1" class="layui-btn layui-btn-danger " onclick="AddSignRow();">添加</button>
-        <button type="button" id='bt2' class="layui-btn layui-btn-danger " onclick="ClearAllSign();">清空</button>
-        <button class="layui-btn layui-btn-danger" id="sub1" type="button">立即提交</button>
+        
 
-        <button type="button" class="layui-btn" id="thumb">Excel导入 </button>
-
+        <button class="layui-btn layui-btn-danger layui-btn-sm" lay-submit="" lay-filter="serch">立即提交</button>
       </div>
-      <table class="layui-table" lay-size="sm" id="SignFrame">
-        <thead>
-          <tr>
-            <th style="width: 30px;">编号</th>
-            <th>问题</th>
-            <th>选择1</th>
-            <th>选择2</th>
-            <th>选择3</th>
-            <th>选择4</th>
-            <th>答案</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
     </form>
+    <table class="layui-table" lay-size="sm">
+      
+      <colgroup>
+        <col width="50">
+        <col width="650">
+        <col width="200">
+        <col width="100">
+        <col width="100">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>编号</th>
+          <th>题目</th>
+          <th>课程分类</th>         
+          <th>题型</th>
+          <th>操作</th>
+        </tr> 
+      </thead>
+      <tbody>
+        {volist name="data" id="vo"}
+        <tr>
+          <td> {$vo.id}</td>
+          <td><span style="font-weight:500;"></span>{$vo.descrption}</td>
+           <td> {$vo.course.name}</td>
+          <td> {$vo.status}</td>
+          <td class="operation-menu">
+            <div class="layui-btn-group">
+              <a href="{:url('admin/exams/edit',['id'=>$vo.id])}" class="layui-btn layui-btn-xs a_menu layui-btn-primary" style="margin-right: 0;font-size:12px;"><i class="layui-icon"></i></a>
+              <a href="javascript:;" class="layui-btn layui-btn-xs layui-btn-primary delete" id="{$vo.id}" style="margin-right: 0;font-size:12px;"><i class="layui-icon"></i></a>
+            </div>
+          </td>
+        </tr>
+        {/volist}
+      </tbody>
+    </table>
+    <div style="padding: 0 20px;">{$data->render()}</div>
+    {include file="public/foot"}
+    <script type="text/javascript">
 
-    <div  id="test" style="display: none; background-color: teal;height: 100%;">
-      <p>
-        请按照一下格式录入
-      </p>
-      <div style=" background-color: red; width: 400px;height: 400;">
-test  
-      </div>
-      <div>
-        <button  type="button" class="layui-btn" id="go">确定 </button>
-        <button  type="button" class="layui-btn" onclick="layer.closeAll();">取消</button>
-      </div>
-     
-    </div>
-    <input name='txtTRLastIndex' type='hidden' id='txtTRLastIndex' value="1" />
-    <script src="__PUBLIC__/layui/layui.js"></script>
-    <script src="__PUBLIC__/jquery/jquery.min.js"></script>
-    <script>
-      var d = document.getElementById('sel');
-      function findObj(theObj, theDoc) {
-        var p, i, foundObj;
-        if (!theDoc) {
-          theDoc = document;
-        }
-
-        if ((p = theObj.indexOf("?")) > 0 && parent.frames.length) {
-          theDoc = parent.frames[theObj.substring(p + 1)].document;
-          theObj = theObj.substring(0, p);
-        }
-
-        if (!(foundObj = theDoc[theObj]) && theDoc.all) {
-          foundObj = theDoc.all[theObj];
-        }
-
-        for (i = 0; !foundObj && i < theDoc.forms.length; i++) {
-          foundObj = theDoc.forms[i][theObj];
-        }
-
-        for (i = 0; !foundObj && theDoc.layers && i < theDoc.layers.length; i++) {
-          foundObj = findObj(theObj, theDoc.layers[i].document);
-        }
-
-        if (!foundObj && document.getElementById) {
-          foundObj = document.getElementById(theObj);
-          return foundObj;
-        }
-      }
-
-
-
-      function AddSignRow() {
-        //读取最后一行的行号，存放在txtTRLastIndex文本框中 
-        var txtTRLastIndex = findObj("txtTRLastIndex", document);
-        console.log(txtTRLastIndex);
-        var rowID = parseInt(txtTRLastIndex.value);
-
-        var signFrame = findObj("SignFrame", document);
-        var newTR = signFrame.insertRow(signFrame.rows.length);
-        newTR.id = "SignItem" + rowID;
-
-        var newNameTD = newTR.insertCell(0);
-        newNameTD.innerHTML = newTR.rowIndex.toString();
-
-        var newNameTD = newTR.insertCell(1);
-        newNameTD.innerHTML = "<textarea name='txtName" + rowID + "' id='txtName" + rowID + "' col='30' row='3'></textarea>";
-        var newEmailTD = newTR.insertCell(2);
-
-        newEmailTD.innerHTML = "<textarea name='txta" + rowID + "' id='txtEmail" + rowID + "' col='30' row='3'></textarea>";
-        var newTelTD = newTR.insertCell(3);
-
-        newTelTD.innerHTML = "<textarea name='txtb" + rowID + "' id='txtTel" + rowID + "' col='30' row='3'></textarea>";
-        var newMobileTD = newTR.insertCell(4);
-        newMobileTD.innerHTML = "<textarea name='txtc" + rowID + "' id='txtMobile" + rowID + "' col='30' row='3'></textarea>";
-
-        var newCompanyTD = newTR.insertCell(5);
-        newCompanyTD.innerHTML = "<textarea name='txtd" + rowID + "' id='txtCompany" + rowID + "' col='30' row='3' ></textarea>";
-
-        var newCompanyTD = newTR.insertCell(6);
-        //添加列内容
-        newCompanyTD.innerHTML = "<textarea name='da" + rowID + "' id='txtCompany" + rowID + "' col='30' row='3' ></textarea>";
-
-        //添加列:删除按钮
-        //添加列:删除按钮
-        var newDeleteTD = newTR.insertCell(7);
-
-        //添加列内容
-        newDeleteTD.innerHTML = "<div align='center' style='width:40px'><a href='javascript:;' onclick=\"DeleteSignRow('SignItem" + rowID + "')\">删除</a></div>";
-
-        //将行号推进下一行
-        txtTRLastIndex.value = (rowID + 1).toString();
-      }
-
-      //删除指定行
-      function DeleteSignRow(rowid) {
-        var signFrame = findObj("SignFrame", document);
-        var signItem = findObj(rowid, document);
-
-        //获取将要删除的行的Index
-        var rowIndex = signItem.rowIndex;
-
-        //删除指定Index的行
-        signFrame.deleteRow(rowIndex);
-
-        //重新排列序号，如果没有序号，这一步省略
-        for (i = rowIndex; i < signFrame.rows.length; i++) {
-          signFrame.rows[i].cells[0].innerHTML = i.toString();
-        }
-      }
-
-      //清空列表
-      function ClearAllSign() {
-        if (confirm('确定要清空?')) {
-          var signFrame = findObj("SignFrame", document);
-          var rowscount = signFrame.rows.length;
-
-          //循环删除行,从最后一行往前删除
-          for (i = rowscount - 1; i > 0; i--) {
-            signFrame.deleteRow(i);
-          }
-
-          //重置最后行号为1
-          var txtTRLastIndex = findObj("txtTRLastIndex", document);
-          txtTRLastIndex.value = "1";
-
-          //预添加一行
-          //AddSignRow();
-        }
-      }
-    </script>
-    <script>
-      layui.use(['layer', 'jquery', 'form', 'upload'], function () {
-        var upload = layui.upload;
-        var layer = layui.layer,
-          $ = layui.jquery;
-        form = layui.form;
-        $('#thumb').on('click', function () {
-          var index = layer.open({
-            type: 1
-            , title: '注意'
-            , area: ['700px','500px']
-            , content: $("#test")         
-          });
-        });
-
-        $("#go").on('click',function(){
-          layer.closeAll();
-        });
-        var uploadInst = upload.render({
-                elem: '#go' //绑定元素
-                , url: "{:url('exams/uploadExecl')}" //上传接口
-                , accept: 'file'
-                , exts: 'xlsx|xls'
-               
-                //,bindAction:"#sub"
-                , before: function (obj) {
-                 
-                  this.data = { 'cid': $('#sel').val() }
-                }
-                , done: function (res) {
-                  //上传完毕回调
-                  if (res.code == 2) {
-                    layer.msg(res.msg);
-                  } else {
-                    layer.msg(res.msg);
-                  }
-                }
-                , error: function () {
-                  //请求异常回调
-                  //演示失败状态，并实现重传
-                  var demoText = $('#demoText');
-                  demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-mini demo-reload">重试</a>');
-                  demoText.find('.demo-reload').on('click', function () {
-                    uploadInst.upload();
-                  });
-                }
-              });
-          
-
-      });
-
-      $("#sub1").click(function () {
+    $('.delete').click(function(){
+      var id = $(this).attr('id');
+      layer.confirm('确定要删除?', function(index) {
         $.ajax({
-          type: 'post',
-          url: "{:url('admin/exams/publish')}",
-          data: $('#admin').serialize(),
-          async: false,
-          success: function (res) {
-            if (res.code == 2) {
-              layer.msg(res.msg)
-            } else {
-              layer.msg(res.msg);
+          url:"{:url('admin/exams/delete')}",
+          data:{id:id},
+          success:function(res) {
+            layer.msg(res.msg);
+            if(res.code == 1) {
+              setTimeout(function(){
+                location.href = res.url;
+              },1500)
             }
           }
-        });
-      });
-    </script>
-    <script>
-      layui.use('form', function () {
-        var form = layui.form;
-        form.render();
-      });
+        })
+      })
+    })
     </script>
   </div>
 </body>
-
 </html>
