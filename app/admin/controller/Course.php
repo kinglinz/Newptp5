@@ -35,8 +35,9 @@ class Course extends Controller
         }
 
         $course = empty($where) ? $model->order('create_time desc')->paginate(20) : $model->where($where)->order('create_time desc')->paginate(20, false, ['query' => $this->request->param()]);  
-        //dump($course);
+        
         $this->assign('course', $course);
+
         return $this->fetch();
     }
 

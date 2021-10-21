@@ -66,13 +66,13 @@ class ExportExcel
 
 
     // 执行数据导入
-    public function doImport()
+    public function doImport($fileName)
     {
 
         set_time_limit(90);
-        $excel = request()->file('file')->getInfo(); //excel为file中的name
+       
 
-        $objPHPExcel = \PHPExcel_IOFactory::load($excel['tmp_name']);
+        $objPHPExcel = \PHPExcel_IOFactory::load($fileName);
 
         //$sheet_count = $objPHPExcel->getSheetCount();
        // for ($s = 0; $s < $sheet_count; $s++) {
