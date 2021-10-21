@@ -81,6 +81,20 @@
         <tbody></tbody>
       </table>
     </form>
+
+    <div  id="test" style="display: none; background-color: teal;height: 100%;">
+      <p>
+        请按照一下格式录入
+      </p>
+      <div style=" background-color: red; width: 400px;height: 400;">
+test  
+      </div>
+      <div>
+        <button  type="button" class="layui-btn" id="go">确定 </button>
+        <button  type="button" class="layui-btn" onclick="layer.closeAll();">取消</button>
+      </div>
+     
+    </div>
     <input name='txtTRLastIndex' type='hidden' id='txtTRLastIndex' value="1" />
     <script src="__PUBLIC__/layui/layui.js"></script>
     <script src="__PUBLIC__/jquery/jquery.min.js"></script>
@@ -202,33 +216,49 @@
         var layer = layui.layer,
           $ = layui.jquery;
         form = layui.form;
-        var uploadInst = upload.render({
-          elem: '#thumb' //绑定元素
-          , url: "{:url('exams/uploadExecl')}" //上传接口
-          , accept: 'file'
-          , exts: 'xlsx|xls'
-          //,bindAction:"#sub"
-          , before: function (obj) {
-            this.data = { 'cid': $('#sel').val() }
-          }
-          , done: function (res) {
-            //上传完毕回调
-            if (res.code == 2) {
-              layer.msg(res.msg);
-            } else {
-              layer.msg(res.msg);
-            }
-          }
-          , error: function () {
-            //请求异常回调
-            //演示失败状态，并实现重传
-            var demoText = $('#demoText');
-            demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-mini demo-reload">重试</a>');
-            demoText.find('.demo-reload').on('click', function () {
-              uploadInst.upload();
-            });
-          }
+        $('#thumb').on('click', function () {
+          var index = layer.open({
+            type: 1
+            , title: '注意'
+            , area: ['700px','500px']
+            , content: $("#test")         
+          });
         });
+
+        $("#go").on('click',function(){
+          layer.closeAll();
+        });
+        var uploadInst = upload.render({
+                elem: '#go' //绑定元素
+                , url: "{:url('exams/uploadExecl')}" //上传接口
+                , accept: 'file'
+                , exts: 'xlsx|xls'
+               
+                //,bindAction:"#sub"
+                , before: function (obj) {
+                 
+                  this.data = { 'cid': $('#sel').val() }
+                }
+                , done: function (res) {
+                  //上传完毕回调
+                  if (res.code == 2) {
+                    layer.msg(res.msg);
+                  } else {
+                    layer.msg(res.msg);
+                  }
+                }
+                , error: function () {
+                  //请求异常回调
+                  //演示失败状态，并实现重传
+                  var demoText = $('#demoText');
+                  demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-mini demo-reload">重试</a>');
+                  demoText.find('.demo-reload').on('click', function () {
+                    uploadInst.upload();
+                  });
+                }
+              });
+          
+
       });
 
       $("#sub1").click(function () {

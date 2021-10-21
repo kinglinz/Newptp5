@@ -69,29 +69,5 @@ class Datamanage extends Controller
         }
     }
 
-    // function test(){      
-       
-    //     for($i = 1;$i<60;$i++){
-    //         $u = new UserModel();
-    //         dump($i);
-    //         $u->id = $i;
-    //         $u->password = $i;
-    //         $u->username = $i;
-    //         $u->profile_id = $i;
-    //         if($u->allowField(true)->save()){
-    //             $p = new ProfileModel();
-    //             $p->id = $i;
-    //             $p->name = $i;
-    //             $p->addr = $i;
-    //             $p->idpic = $i;
-    //             $p->edu = $i;
-    //             $p->job = $i;
-    //             $p->phone = $i;
-    //             $p->region = $i;
-    //             $p->identity = $i;
-    //             $p->user_id = $i;
-    //             $u->profile()->save($p);
-    //         }
-    //     }
-    // }
+   
 }

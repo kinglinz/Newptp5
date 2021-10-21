@@ -6,7 +6,7 @@ use think\Controller;
 use app\service\ExportExcel;
 use app\admin\model\BuyCourse as BcourseModel;
 
-//已购买课程
+//报名管理
 class Applymanage extends Controller
 {
     public function index()
@@ -23,6 +23,9 @@ class Applymanage extends Controller
             $where['create_time'] = [['>=', $min_time], ['<=', $max_time]];
         }
         $ret = empty($where) ? $model->order('create_time desc')->paginate(20) : $model->where($where)->order('create_time desc')->paginate(20, false, ['query' => $this->request->param()]);
+        //$test = $ret->toArray();
+
+        //dump($test);die;
         $this->assign('info', $ret);
         return $this->fetch();
  }
