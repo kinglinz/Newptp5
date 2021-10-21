@@ -60,7 +60,7 @@
 
         <button type="button" id="bt1" class="layui-btn layui-btn-danger " onclick="AddSignRow();">添加</button>
         <button type="button" id='bt2' class="layui-btn layui-btn-danger " onclick="ClearAllSign();">清空</button>
-        <button class="layui-btn layui-btn-danger" type="submit">立即提交</button>
+        <button class="layui-btn layui-btn-danger" id="sub1" type="button">立即提交</button>
 
         <button type="button" class="layui-btn" id="thumb">Excel导入 </button>
 
@@ -81,14 +81,11 @@
         <tbody></tbody>
       </table>
     </form>
-
     <input name='txtTRLastIndex' type='hidden' id='txtTRLastIndex' value="1" />
     <script src="__PUBLIC__/layui/layui.js"></script>
     <script src="__PUBLIC__/jquery/jquery.min.js"></script>
     <script>
-
       var d = document.getElementById('sel');
-
       function findObj(theObj, theDoc) {
         var p, i, foundObj;
         if (!theDoc) {
@@ -119,7 +116,7 @@
       }
 
 
-      //添加一个参与人填写行
+
       function AddSignRow() {
         //读取最后一行的行号，存放在txtTRLastIndex文本框中 
         var txtTRLastIndex = findObj("txtTRLastIndex", document);
@@ -200,30 +197,19 @@
       }
     </script>
     <script>
-
-      // var cid =0;
-      // layui.use(['layer', 'jquery', 'form'], function () {
-      //   var layer = layui.layer,
-      //     $ = layui.jquery;
-      //   form = layui.form;
-      //   form.on('select(demo)', function (data) {
-      //     cid = data.value;
-      //   });
-      // });
-      layui.use(['layer', 'jquery', 'form','upload'], function () {
+      layui.use(['layer', 'jquery', 'form', 'upload'], function () {
         var upload = layui.upload;
         var layer = layui.layer,
-        $ = layui.jquery;
+          $ = layui.jquery;
         form = layui.form;
         var uploadInst = upload.render({
-          
           elem: '#thumb' //绑定元素
           , url: "{:url('exams/uploadExecl')}" //上传接口
           , accept: 'file'
           , exts: 'xlsx|xls'
-         //,bindAction:"#sub"
-          , before:function(obj){
-            this.data = { 'cid': $('#sel').val()}
+          //,bindAction:"#sub"
+          , before: function (obj) {
+            this.data = { 'cid': $('#sel').val() }
           }
           , done: function (res) {
             //上传完毕回调
@@ -244,21 +230,30 @@
           }
         });
       });
+
+      $("#sub1").click(function () {
+        $.ajax({
+          type: 'post',
+          url: "{:url('admin/exams/publish')}",
+          data: $('#admin').serialize(),
+          async: false,
+          success: function (res) {
+            if (res.code == 2) {
+              layer.msg(res.msg)
+            } else {
+              layer.msg(res.msg);
+            }
+          }
+        });
+      });
     </script>
     <script>
       layui.use('form', function () {
         var form = layui.form;
         form.render();
       });
-
-
-    </script>
-    <script>
- 
-    
     </script>
   </div>
 </body>
-
 
 </html>

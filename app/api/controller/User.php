@@ -3,8 +3,7 @@
 namespace app\api\controller;
 
 use app\user\model\User as userModel;
-use app\admin\model\BuycourseProfile as BuyPModel;
-use app\admin\model\BuyCourse as buyCourseModel;
+
 use app\user\model\Profile as ProfileModel;
 use think\Cookie;
 use think\Db;
@@ -17,7 +16,7 @@ class User extends \app\jk\controller\Login
     public function Profile()
     {
         if ($this->request->isPost()) {
-            //更改资料
+            //更改注册资料
             $post = $this->request->post();
             $userid = $this->token($this->request->cookie('token'));
             $usermodel = userModel::get($userid);
@@ -45,8 +44,9 @@ class User extends \app\jk\controller\Login
                 $promodel->identity = $post['identity'];
                 $promodel->phone = $post['phone'];
                 $ret = $usermodel->profile()->save($promodel);
+                
                 if ($ret) {
-                    return json(['type' => 'success', 'msg' => '修改成功'], 200);
+                    return json(['type' => 'success', 'msg' => '修改成功' ], 200);
                 }
             } else {
                 return json(['type' => 'error', 'msg' => '参数不正确'], 401);
@@ -62,33 +62,40 @@ class User extends \app\jk\controller\Login
 
 
 
-    public function myscore(){
-        
-    }
 
-    public function test()
-    {
-        $token = $this->request->cookie('token');
-        return $token;
-        $uid = $this->token($token);
-    }
-
+    
     public function reg()
     {
         if ($this->request->param('username')) {
             $user = new userModel();
             if ($user->allowField(true)->save($this->request->get())) {
-                $enuid = $this->encode($user->id);
+                 $enuid = $this->encode($user->id);
                 if ($user->isUpdate(true)->allowField(true)->save(['openid' => $enuid])) {
-                    Cookie::set('token', $enuid);
-                    return json(['code' => 200, 'msg' => '注测成功']);
+                    $promodel = new ProfileModel();
+                    $promodel->name ='name';
+                    $promodel->addr = 'addr';
+                    $promodel->idpic = 'idpic';
+                    $promodel->edu = 'edu';
+                    $promodel->identity = 'identity';
+                    $promodel->phone = 'phone';
+
+                    $ret = $user->profile()->save($promodel);
+                    $pid = $promodel->getLastInsID();            
+                    $t = $user->allowField(true)->save(['profile_id' => $pid],['id' => $user->id]);          
+                    if($t && $ret){                       
+                        Cookie::set('token', $enuid);
+                        return json(['code' => 200, 'msg' => '注测成功']);
+                    }else{
+                        return json(['1' => $t,'2' => $user->getError()]);
+                    }
+                  
                 } else {
                     return json(['code' => 400, 'msg' => '注测失败', 'error' =>
                     $user->getLastSql(), 'enuid' => $user->getError()]);
                 }
             }
         } else {
-            return json(['code' => 400, 'msg' => 'id不正确']);
+            return json(['code' => -1, 'msg' => 'id不正确']);
         }
     }
 

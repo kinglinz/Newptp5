@@ -25,14 +25,16 @@ class Exams extends Controller
 
     public function publish()
     {
+        
         if ($this->request->isPost()) {
             $post = $this->request->post();
             if (empty($post['cid'])) {
-                return   json(['code' => -1, 'msg' => '请选择分类']);
+                return   json(['code' => -1, 'msg' => '请选择练习分类']);
             }
             $arr = array();
-            $test = (count($post) - 2) / 6;
+            $test = round((count($post) - 2) / 6);
             $j = 0;
+            //获取post提交参数到数组       
             for ($i = 1; $i <= $test; $i++) {
                 $arr[$j]['descrption'] = $post['txtName' . $i];
                 $arr[$j]['a'] = $post['txta' . $i];
@@ -43,22 +45,21 @@ class Exams extends Controller
                 $arr[$j]['cid'] = $post['cid'];
                 $j++;
             }
-
-
-            try {
+            try {              
                 $result = $this->checkData($arr, $post['cid']);
             } catch (Exception $ex) {
-                return $this->error($ex->getMessage());
+                return json(['code'=>-1,'msg' => $ex->getMessage()]);
             }
-
             $examModel = new ExamsModel();
             if ($examModel->saveAll($result)) {
-                return json(['code' => 2, 'msg' => '导入成功']);
+                return json(['code' => 2, 'msg' => '添加成功']);
             } else {
-                return json(['code' => -1, 'msg' => '导入失败']);
+                return json(['code' => -1, 'msg' => '添加失败']);
             }
         }
     }
+
+    
     /**
      * 练习导入excel接口
      */
@@ -66,17 +67,17 @@ class Exams extends Controller
     {
         $post = $this->request->post();
         if (empty($post['cid'])) {
-            return   json(['code' => -1, 'msg' => '请选择分类']);
+            return   json(['code' => -1, 'msg' => '请选择练习分类']);
         }
         $execl = new ExportExcel();
         $fileinfo = request()->file('file')->getInfo();
-        // try {
-        $data =  $execl->doImport($fileinfo['tmp_name']);
-        $result = $this->checkData($data, $post['cid']);
-        //} catch (Exception $ex) {
-        //return json(['msg' => $ex->getMessage(), 'code' => $ex->getCode()]);
-        //   return json(['code' => -1,'msg' => 'test']);
-        // }
+        try {
+            $data =  $execl->doImport($fileinfo['tmp_name']);
+            $result = $this->checkData($data, $post['cid']);
+        } catch (Exception $ex) {
+            return json(['msg' => $ex->getMessage(), 'code' => $ex->getCode()]);
+           // return json(['code' => -1, 'msg' => 'test']);
+        }
 
         $examModel = new ExamsModel();
         if ($examModel->saveAll($result)) {
@@ -90,13 +91,14 @@ class Exams extends Controller
     /**
      * 构建模型写入数组
      * @param $data 二维数组
+     * @param $cid  课程id
      * @return array
      */
 
     private function checkData($data, $cid)
     {
         $i = 0;
-
+        
         foreach ($data as $temp) {
             $arr = $this->arrk2num($temp);
             $status = $this->checkArr($arr);
@@ -130,14 +132,12 @@ class Exams extends Controller
                 }
                 $i++;
             }
-            // dump(11111);
         }
-
+      
         if (isset($result) && !empty($result)) {
             return $result;
         } else {
-            return json(['code' => -1, 'msg' => 'test']);
-            //throw new Exception('文件没有数据或者格式不正确', -1);
+            throw new Exception('没有数据或者文件格式不正确', -1);
         }
     }
 
@@ -168,7 +168,8 @@ class Exams extends Controller
 
         return $tmp1;
     }
-    //转数字下标 
+
+    //转换数字下标 
     private function arrk2num($arr)
     {
         if (!is_array($arr)) {
