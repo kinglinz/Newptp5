@@ -34,8 +34,8 @@ class Course extends Controller
             $where['create_time'] = [['>=', $min_time], ['<=', $max_time]];
         }
 
-        $course = empty($where) ? $model->order('create_time desc')->paginate(20) : $model->where($where)->order('create_time desc')->paginate(20, false, ['query' => $this->request->param()]);  
-        
+        $course = empty($where) ? $model->order('create_time desc')->paginate(20) : $model->where($where)->order('create_time desc')->paginate(20, false, ['query' => $this->request->param()]);
+
         $this->assign('course', $course);
 
         return $this->fetch();
@@ -56,8 +56,8 @@ class Course extends Controller
                     ['image', 'require', '请上传缩略图'],
                     ['num', 'number', '课时必须是数字']
                 ];
-                if($post['status'] == 1){
-                    array_push($check,['price','require','请填写金额']);
+                if ($post['status'] == 1) {
+                    array_push($check, ['price', 'require', '请填写金额']);
                 }
                 $validate = new \think\Validate($check);
 
@@ -70,12 +70,12 @@ class Course extends Controller
                     return $this->success('修改成功', 'admin/course/index');
                 }
             } else {
-                $result = $course->get($id)->toArray(); 
+                $result = $course->get($id)->toArray();
                 $this->assign('course', $result);
                 return $this->fetch();
             }
         } else {
-           
+
             if ($this->request->isPost()) { //新增
                 //获取提交参数
                 $post = $this->request->post();
@@ -98,16 +98,10 @@ class Course extends Controller
                     return $this->success('添加成功', 'admin/course/index');
                 }
             } else {
-               
-                // if($this->request->has('id')){
-                //     $id = $this->request->param('id');
-                //     return $id;
-                // }else{
-                //     return $this->error("id不正确");
-                // }
+                return $this->fetch();
             }
         }
-        return $this->fetch();
+       
     }
 
 
