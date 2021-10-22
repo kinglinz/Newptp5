@@ -53,9 +53,10 @@
    
     <div  style="float: left; margin-left: 10px;">
       
-        <a style="text-decoration: none; color:white" href="{:url('admin/applymanage/exportexecl')}">
-          <button class="layui-btn layui-btn-danger layui-btn-sm" lay-submit="" lay-filter="serch">导出</button>
-      </a>
+       <a style="text-decoration: none; color:white" href="{:url('admin/applymanage/exportexecl')}"> -->
+          <button class="layui-btn layui-btn-danger layui-btn-sm" lay-submit="" 
+          id="export" type="button" lay-filter="exprot">导出</button>
+       </a> 
       
     </div>  
   </form>
@@ -173,19 +174,7 @@
         } else {
           var status = 1;
         }
-        $.ajax({
-          type: "post",
-          url: "{:url('admin/article/status')}",
-          data: { status: status, id: id },
-          success: function (res) {
-
-            if (res.code == 1) {
-              tostatus();
-            } else {
-              layer.msg(res.msg);
-            }
-          }
-        })
+       
 
         function tostatus() {
           if (val == 1) {
@@ -197,6 +186,23 @@
           }
         }
       })
+    </script>
+    <script>
+      
+      // $("#export").click(function(){
+      //   $.ajax({
+      //     url: "{:url('admin/applymanage/exportexecl')}",
+      //     success : function(res){
+      //       if(res.code != -1){
+      //         layer.msg(res.msg);
+      //         $.download(downurl, 'post'); // 下载文件 
+      //       }else{
+      //         layer.msg(res.msg);         
+      //       }
+      //     }
+      //   });
+      // });
+
     </script>
   </div>
 </body>

@@ -132,7 +132,6 @@ class Exams extends Controller
             $result = $this->checkData($data, $post['course_id']);
         } catch (Exception $ex) {
             return json(['msg' => $ex->getMessage(), 'code' => $ex->getCode()]);
-            // return json(['code' => -1, 'msg' => 'test']);
         }
 
         $examModel = new ExamsModel();

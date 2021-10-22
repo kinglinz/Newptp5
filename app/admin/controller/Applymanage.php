@@ -5,6 +5,7 @@ namespace app\admin\controller;
 use think\Controller;
 use app\service\ExportExcel;
 use app\admin\model\BuyCourse as BcourseModel;
+use Exception;
 
 //报名管理
 class Applymanage extends Controller
@@ -37,11 +38,13 @@ class Applymanage extends Controller
     //导出Excel
     public function exportexecl()
     {
+      
         $execl = new ExportExcel();
-        if($execl->connectOrder()){
-
-        }else{
-            $this->error('请求错误');
-        }
+        //try{
+        $tmp = $execl->connectOrder();
+        //}catch(Exception $e){
+       //     return json(['code' => -1, 'msg' => $e->getMessage()]);
+       // }     
+        return $tmp;
     }
 }

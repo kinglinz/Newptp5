@@ -4,6 +4,8 @@ namespace app\service;
 
 // use PHPExcel;
 // use PHPExcel_IOFactory;
+
+use Exception;
 use think\Db;
 
 class ExportExcel
@@ -23,11 +25,20 @@ class ExportExcel
         // vendor('phpoffice.phpexcel.Classes.PHPexcel');
         // vendor('phpoffice.phpexcel.Classes.PHPexcel.IOFactory');
 
+        if(empty($list) ||   !is_array($list[0]) || empty($list)){
+            //throw new Exception("查询数据失败");
+            return json([
+                'code' => '-1','msg' => '数据导出失败'
+            ]);
+        }
+     
         if (empty($columName) || empty($list)) {
-            return '列名或者内容不能为空';
+            //throw new Exception('列名或者内容不能为空');
+              return json(['code' => '-1','msg' => '数据导出失败']);
         }
         if (count($list[0]) != count($columName)) {
-            return '列名跟数据的列不一致';
+            //return '列名跟数据的列不一致';
+            return json(['code' => '-1','msg' => '数据导出失败']);
         }
         $fileName = iconv("utf-8", "gb2312", $fileName);
         //实例化PHPExcel类
@@ -106,15 +117,11 @@ class ExportExcel
         //         ->select();
         //第一行的列数据ID
         $data = Db::query('select b.id,c.name as coursename,b.create_time,user.name from tplay_buy_course as b INNER JOIN tplay_course as c ON(b.course_id=c.id) INNER JOIN tplay_user as u ON(b.user_id=u.id) INNER JOIN tplay_profile as user ON(u.profile_id=user.id);');
-        dump($data);
-        if ($data) {
-            $header = array('ID', '报名课程', '报名人', '创建时间');
+       
+        //设置表头
+        $header = array('ID', '报名课程', '报名人', '创建时间');       
+        //调用导出方法
+        return self::exportExcel1($header, $data, '报名' . date('Y年m月d日 H.i'));
 
-            //调用导出方法
-            self::exportExcel1($header, $data, '报名' . date('Y-m-d'));
-            return true;
-        } else {
-            return false;
-        }
     }
 }
