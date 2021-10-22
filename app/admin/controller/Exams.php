@@ -163,7 +163,7 @@ class Exams extends Controller
             } else {
                 if (4 == $status['tmp']) {
                     $result[$i]['descrption'] = $arr[0];
-                    $result[$i]['a'] = $arr[1];
+                    $result[$i]['a'] = $arr[1] ;
                     $result[$i]['b'] = $arr[2];
                     $result[$i]['c'] = '';
                     $result[$i]['d'] = '';
@@ -211,10 +211,13 @@ class Exams extends Controller
             'status' => false
         ];
 
+        $i = 0;
         foreach ($array as $str) {
             if (strlen(trim($str)) == 0) {
                 $tmp1['count']++;
+                $array[$i] = ' ';
             }
+            $i++;
         }
         //得到有效数据个数  小于4 为无效数据
         $tmp1['tmp'] = count($array) - $tmp1['count'];

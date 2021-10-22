@@ -82,13 +82,14 @@
       </table>
     </form>
 
-    <div  id="test" style="display: none;height: 100%;">
+    <div  id="test" style="display: none;height: 100%;width: 100%;">
       
-      <div style="width: 100%;height: 400; border: 1px solid red;">
+      <div style="width: 99%;height: 400px; border: 1px solid red;">
         <p>test test test test</p>
-        <img src="__PUBLIC__/2.jpg"/>
+        <div style="align-content: center; border: 1px solid red;"> <img src="__PUBLIC__/2.jpg"/></div>
+       
       </div>
-      <div style="width: 100%; align-content: center;">
+      <div style="align-content: center;border: 1px solid red;">
         <button  type="button" class="layui-btn" id="go">确定 </button>
         <button  type="button" class="layui-btn" onclick="layer.closeAll();">取消</button>
       </div>
@@ -225,7 +226,7 @@
         $('#thumb').on('click', function () {
           var index = layer.open({
             type: 1
-            , title: '注意'
+            , title: ['温馨提示','font-size:18px;font-weight:bold;color:green;']
             , area: ['700px','500px']
             , content: $("#test")         
           });

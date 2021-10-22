@@ -43,6 +43,9 @@ class Courseinfo extends Controller
                 $validate = new \think\Validate(
                     [
                         ['name', 'require', '标题不能为空'],
+                        ['image', 'require', '请上传缩略图'],
+                        ['video', 'require', '视频不能为空'],
+                        ['course_id', 'require', '课程分类不能为空'],
                     ]
                 );
                 if (!$validate->check($post)) {
@@ -74,7 +77,7 @@ class Courseinfo extends Controller
                     ['name', 'require', '标题不能为空'],
                     ['image', 'require', '请上传缩略图'],
                     ['video', 'require', '视频不能为空'],
-                  
+                    ['course_id', 'require', '课程分类不能为空'],
                 ]);
 
                 if (!$validate->check($post)) {
@@ -126,23 +129,20 @@ class Courseinfo extends Controller
         $module = $this->request->has('module') ? $this->request->param('module') : $module; //模块
         $web_config = Db::name('webconfig')->where('web', 'web')->find();
         $info = $file->validate(['size' => $web_config['file_size'] * 1024 * 10, 'ext' => $web_config['file_type']])->rule('date')->move(ROOT_PATH . 'public' . DS . 'uploads' . DS . $module . DS . $use);
-        //$info = $file->move(ROOT_PATH . 'public' . DS . 'uploads' . DS .$module.DS.$use );
         if ($info) {
             $data = [];
             $res['src'] = DS . 'uploads' . DS . $module . DS . $use . DS . $info->getSaveName();
             $res['code'] = 2;
             return json($res);
         } else {
-            // 上传失败获取错误信息
             return $this->error('上传失败：' . $file->getError());
         }
     }
 
     //上传视频
-    public function uploadVideo($module = 'admin', $use = 'admin_videos')
+    public function uploadVideo($module = 'admin', $use = 'courseinfo_videos')
     {
-        //dump($this->request->file('layuiVideo'));die;
-        if ($this->request->file('layuiVideo')) {
+         if ($this->request->file('layuiVideo')) {
             $file = $this->request->file('layuiVideo');
         } else {
             $res['code'] = 1;
@@ -151,7 +151,7 @@ class Courseinfo extends Controller
         }
         $info = $file->move(ROOT_PATH . 'public' . DS . 'uploads' . DS .$module.DS.$use );
         if ($info) {
-            $res['src'] = DS . 'uploads' . DS . $module . DS . $use . DS . $info->getSaveName();
+            $res['src'] = DS . 'uploads' . DS . $module . DS . $use.$this->request->post()['course_name'] . DS . $info->getSaveName();
             $res['code'] = 2;
             return json($res);
         } else {
