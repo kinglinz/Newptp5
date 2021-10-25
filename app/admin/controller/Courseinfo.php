@@ -93,7 +93,7 @@ class Courseinfo extends Controller
             } else {
 
                 $cate = new CourseModel();
-                $ret = $cate->all();
+                $ret = $cate->where('is_online',1)->select();
                 $this->assign('cates', $ret);
                 return $this->fetch();
             }
