@@ -28,7 +28,7 @@
         <label class="layui-form-label">标题</label>
         <div class="layui-input-block" style="max-width:600px;">
           <input name="title" lay-verify="title" autocomplete="off" placeholder="请输入标题" class="layui-input" type="text"
-            {notempty name="$cate.name" }value="{$cate.name}" {/notempty}>
+            {notempty name="$info.title" }value="{$info.title}" {/notempty}>
         </div>
       </div>
 
@@ -36,7 +36,7 @@
         <label class="layui-form-label">班级</label>
         <div class="layui-input-block" style="max-width:600px;">
           <input name="class" lay-verify="title" autocomplete="off" placeholder="请输入" class="layui-input" type="text"
-            {notempty name="$cate.name" }value="{$cate.name}" {/notempty}>
+            {notempty name="$info.class" }value="{$info.class}" {/notempty}>
         </div>
       </div>
 
@@ -44,43 +44,29 @@
         <label class="layui-form-label">位置</label>
         <div class="layui-input-block" style="max-width:600px;">
           <input name="location" lay-verify="title" autocomplete="off" placeholder="请输入" class="layui-input" type="text"
-            {notempty name="$cate.name" }value="{$cate.name}" {/notempty}>
+            {notempty name="$info.location" }value="{$info.location}" {/notempty}>
         </div>
       </div>
 
       <div class="layui-form-item">
         <label class="layui-form-label">课时</label>
         <div class="layui-input-block" style="max-width:200px;">
-          <input name="num" id="course" autocomplete="off" placeholder="" class="layui-input" type="number" min="1"
-            max='50' {notempty name="$course.num" }value="{$course.num}" {/notempty}>
+          <input name="class_hour" id="course" autocomplete="off" placeholder="" class="layui-input" type="number" min="1"
+            max='50' {notempty name="$info.class_hour" }value="{$info.class_hour}" {/notempty}>
         </div>
       </div>
 
-      {notempty name="$cate"}
-      <input type="hidden" name="id" value="{$cate.id}">
-      {/notempty}
+     
       <div class="layui-form-item">
         <label class="layui-form-label">课程</label>
         <div class="layui-input-block" style="max-width:600px;">
 
           <select id="course_id" name="course_id" id="processState" lay-filter="aihao">
-            {empty name="$info" }
+           
             <option value="">请选择</option>
-            {empty}
-            {notempty name="$info" }
-            <option value="{$info.id}" selected="selected">{$info.name}</option>
-            {/notempty}
-            {notempty name="$cates" }
-            {volist name="$cates" id="vo"}
-            {if condition="isset($info)"}
-            {neq name="$vo.id" value="$info.id"}
-            <option value="{$vo.id}">{$vo.name}</option>
-            {/neq}
-            {else/}
-            <option value="{$vo.id}">{$vo.name}</option>
-            {/if}
+            {volist name="cate" id="vo"}       
+            <option value="{$vo.id}" {notempty name="$info.course_id"}{eq name="$info.course_id" value="$vo.id"} selected=""{/eq}{/notempty}>{$vo.name}</option>
             {/volist}
-            {/notempty}
           </select>
         </div>
       </div>
@@ -89,7 +75,7 @@
         <div class="layui-input-inline">
           <div class="layui-inline">
             <div class="layui-input-inline">
-              <input type="text" class="layui-input" id="create_time" placeholder="创建时间" name="create_time">
+              <input type="text" value="{notempty name='$info.start_time'}{$info.start_time}{/notempty}" class="layui-input" id="create_time" placeholder="开始时间时间" name="start_time">
             </div>
           </div>
         </div>
@@ -101,9 +87,11 @@
           <button type="reset" class="layui-btn layui-btn-primary">重置</button>
         </div>
       </div>
-
+      {notempty name="$info.id"}
+      <input type="hidden" name="id" value="{$info.id}"/>
+    {/notempty}
     </form>
-
+   
     {include file="public/foot"} 
 
     <!-- <script>

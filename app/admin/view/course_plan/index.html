@@ -79,8 +79,7 @@
           <td class="operation-menu">
             <div class="layui-btn-group">
               <a href="{:url('admin/course_plan/publish',['id'=>$vo.id])}" class="layui-btn layui-btn-xs a_menu layui-btn-primary" style="margin-right: 0;font-size:12px;"><i class="layui-icon"></i></a>
-              <a href="{:url('admin/courseinfo/publish',['pid'=>$vo.id])}" class="layui-btn layui-btn-xs a_menu layui-btn-primary" style="margin-right: 0;font-size:12px;"><i class="layui-icon"></i></a>
-              <a href="javascript:;" class="layui-btn layui-btn-xs layui-btn-primary delete" id="{$vo.id}" style="margin-right: 0;font-size:12px;"><i class="layui-icon"></i></a>
+               <a href="javascript:;" class="layui-btn layui-btn-xs layui-btn-primary delete" id="{$vo.id}" style="margin-right: 0;font-size:12px;"><i class="layui-icon"></i></a>
             </div>
           </td>
         </tr>
@@ -95,7 +94,7 @@
       var id = $(this).attr('id');
       layer.confirm('确定要删除?', function(index) {
         $.ajax({
-          url:"{:url('admin/courseinfo/delete')}",
+          url:"{:url('admin/course_plan/delete')}",
           data:{id:id},
           success:function(res) {
             layer.msg(res.msg);
