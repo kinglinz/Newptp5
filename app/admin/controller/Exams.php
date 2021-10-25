@@ -77,6 +77,7 @@ class Exams extends Controller
     public function publish()
     {
 
+        dump($this->request->post());die;
         if ($this->request->isPost()) {
             $post = $this->request->post();
             if (empty($post['course_id'])) {
