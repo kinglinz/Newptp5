@@ -13,7 +13,7 @@ class Course extends Model
         'create_time' => 'timestamp:Y/m/d H:m:s',
     ];
     protected $auto = ['create_time'];
-    protected $insert = ['is_top' => 0, 'is_online' => 1];
+    protected $insert = ['is_top' => 0];
     // protected function setCreateTimeAttr(){
     //     return time();
     // }
@@ -27,5 +27,11 @@ class Course extends Model
     {
         //关联角色表
         return $this->belongsTo('Admin');
+    }
+
+    public function cate()
+    {
+        //关联角色表
+        return $this->belongsTo('CourseCate');
     }
 }

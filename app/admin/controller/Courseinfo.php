@@ -91,6 +91,7 @@ class Courseinfo extends Controller
                     return $this->error('添加失败');
                 }
             } else {
+
                 $cate = new CourseModel();
                 $ret = $cate->all();
                 $this->assign('cates', $ret);

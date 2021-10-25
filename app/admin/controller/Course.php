@@ -1,14 +1,13 @@
 <?php
 
 namespace app\admin\controller;
-
-use think\Controller;
-use app\admin\model\Course as CourseModel;
-
 use think\Db;
 use think\Session;
 
-class Course extends Controller
+use app\admin\model\Course as CourseModel;
+use app\admin\model\CourseCate as CourseCateModel;
+
+class Course extends Permissions
 {
     public function index()
     {
@@ -70,6 +69,10 @@ class Course extends Controller
                     return $this->success('修改成功', 'admin/course/index');
                 }
             } else {
+
+                $momdel = new CourseCateModel();
+                $data = $momdel->all();
+                $this->assign("info",$data);
                 $result = $course->get($id)->toArray();
                 $this->assign('course', $result);
                 return $this->fetch();
@@ -98,6 +101,9 @@ class Course extends Controller
                     return $this->success('添加成功', 'admin/course/index');
                 }
             } else {
+                $momdel = new CourseCateModel();
+                $data = $momdel->all();
+                $this->assign("info",$data);
                 return $this->fetch();
             }
         }

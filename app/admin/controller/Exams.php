@@ -11,7 +11,7 @@ use app\admin\model\Exams as ExamsModel;
 use Exception;
 
 
-class Exams extends Controller
+class Exams extends  Permissions
 {
     public function index()
     {
@@ -77,7 +77,7 @@ class Exams extends Controller
     public function publish()
     {
 
-        dump($this->request->post());die;
+        //dump($this->request->post());die;
         if ($this->request->isPost()) {
             $post = $this->request->post();
             if (empty($post['course_id'])) {
