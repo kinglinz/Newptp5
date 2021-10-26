@@ -6,6 +6,7 @@ namespace app\admin\controller;
 use think\Controller;
 use think\Db;
 use app\service\ExportExcel;
+use app\admin\model\CourseInfo as CourseInfoModel;
 use app\admin\model\Course as CourseModel;
 use app\admin\model\Exams as ExamsModel;
 use Exception;
@@ -42,17 +43,18 @@ class Exams extends  Permissions
     public function edit()
     {
         $id = $this->request->param('id');
-        if ($id) {
+        if (!empty($id)) {
             $examModel = ExamsModel::get($id);
             if ($this->request->isPost()) {
                 $post = $this->request->post();
                 array_shift($post);
+                
                 if ($examModel->save($post, ['id' => $id]))
-                    return json(['code' => 2, 'msg' => '修改成功', 'url' => url('admin/exams/index')]);
+                    return   json(['code' => 2, 'msg' => '修改成功','url'=>'/admin/exams/index']);
                 else
-                    return json(['code' => -1, 'msg' => '修改失败', 'url' => url('admin/exams/index')]);
+                    return   json(['code' => -1, 'msg' => '修改失败']);
             } else {
-                $courseModel = new CourseModel();
+                $courseModel = new CourseInfoModel();
                 $course = $courseModel->select();
                 $this->assign('course', $course);
                 $this->assign('data', $examModel);
@@ -69,9 +71,9 @@ class Exams extends  Permissions
         $examModel = ExamsModel::get($id);
 
         if ($examModel->delete($id))
-            return json(['code' => 1, 'msg' => '删除成功', 'url' => url('admin/exams/index')]);
+            return $this->success( '删除成功', 'admin/exams/index');
         else
-            return json(['code' => -1, 'msg' => '删除失败', 'url' => url('admin/exams/index')]);
+            return $this->error( '删除失败', 'admin/exams/index');
     }
 
     public function publish()

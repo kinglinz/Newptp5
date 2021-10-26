@@ -61,6 +61,21 @@
         </div>
       </div>
 
+      <div class="layui-form-item">
+        <label class="layui-form-label">是否收费</label>
+        <div class="layui-input-block">
+          {notempty name="$cate"}
+          <input name="is_toll" lay-filter="er" id="price" value="1" type="radio" title="是" {ea name="$cate.is_toll"
+            value='1' } checked="checked" {/eq}>
+          <input name="is_toll" lay-filter="er" id="price" value="0" type="radio" title="否" {eq name="$cate.is_toll"
+            value='0' } checked="checked" {/eq}>
+          {/notempty}
+          {empty name="$cate"}
+          <input name="is_toll" lay-filter="er" id="price" value="1" type="radio" title="是" checked="">
+          <input name="is_toll" lay-filter="er" id="price" value="0" type="radio" title="否">
+          {/empty}
+        </div>
+      </div>
 
 
       <div class="layui-upload" id="upload-thumb">
@@ -71,7 +86,9 @@
           <img class="layui-upload-img" id="demo1" width="150" height="150" {notempty name="$cate.image"
             }src="{$cate.image}" {/notempty}>{notempty name="$cate.image"}<input type="hidden" name="image"
             value="{$cate.image}">{/notempty}
-          <p id="demoText"></p>
+          <p id="demoText">
+            
+          </p>
         </div>
       </div>
      
@@ -79,6 +96,9 @@
       <div class="layui-form-item">
         <label class="layui-form-label">视频</label>
         <div id="demo2">
+          {notempty name="cate"} 
+            <input type="hidden" name="video" value="{$cate.video}">
+          {/notempty}
         </div>
         <button type="button" class="layui-btn" id="video">上传视频</button>
         <span id="ok" style="display: none;color: #04570a">上传完成</span>
@@ -160,6 +180,7 @@
               //$('#demo1').attr('src', res.src);
               $("#i").hide();
               $('#ok').show();
+              $('#demo2').empty();
               $('#demo2').append('<input type="hidden" name="video" value="' + res.src + '">');
             } else {
               layer.msg(res.msg);

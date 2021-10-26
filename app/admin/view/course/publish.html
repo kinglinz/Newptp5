@@ -62,14 +62,14 @@
         <label class="layui-form-label">是否收费</label>
         <div class="layui-input-block">
           {notempty name="$course.id"}
-          <input name="status" lay-filter="er" id="price" value="1" type="radio" title="是" {ea name="$course.status"
+          <input name="is_toll" lay-filter="er" id="price" value="1" type="radio" title="是" {ea name="$course.is_toll"
             value='1' } checked="checked" {/eq}>
-          <input name="status" lay-filter="er" id="price" value="0" type="radio" title="否" {eq name="$course.status"
+          <input name="is_toll" lay-filter="er" id="price" value="0" type="radio" title="否" {eq name="$course.is_toll"
             value='0' } checked="checked" {/eq}>
           {/notempty}
           {empty name="$course.id"}
-          <input name="status" lay-filter="er" id="price" value="1" type="radio" title="是" checked="">
-          <input name="status" lay-filter="er" id="price" value="0" type="radio" title="否">
+          <input name="is_toll" lay-filter="er" id="price" value="1" type="radio" title="是" checked="">
+          <input name="is_toll" lay-filter="er" id="price" value="0" type="radio" title="否">
           {/empty}
         </div>
       </div>

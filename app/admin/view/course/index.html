@@ -59,7 +59,7 @@
 
         <div class="layui-input-inline">
           <div class="layui-inline">
-            <select name="status" lay-search="">
+            <select name="is_toll" lay-search="">
               <option value="">费用</option>
               <option value="1">收费</option>
               <option value="0">免费</option>
@@ -114,7 +114,7 @@
           </td>
 
           <td>{$vo.num}</td>
-          {eq name="$vo.status" value="0"}
+          {eq name="$vo.is_toll" value="0"}
           <td>￥0</td>
           {else/}
           <td>￥{$vo.price}</td>

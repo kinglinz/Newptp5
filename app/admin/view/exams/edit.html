@@ -27,10 +27,7 @@
       text-overflow: ellipsis;
     }
 
-    .layui-form input[type=radio],
-    .layui-form select {
-      display: block;
-    }
+
 
     textarea {
       width: 100%;
@@ -75,17 +72,20 @@
             <td><textarea name='d' col='30' row='3'>{$data.d}</textarea></td>
             <td><textarea name='da' col='30' row='3'>{$data.da}</textarea></td>
             <td>
-              <!-- <div class="layui-input-block" style="max-width:600px;" class="layui-form-item"> -->
-              <!-- <select name="course_id" id="sel" lay-filter="demo"> -->
-              <!-- <select class="layui-form-item" name="course_id" id="sel" lay-filter="demo"> -->
-              <select>
-                <option value="" selected="">请选择</option>
-                <option value="{$data.course.id}" selected="selected">{$data.course.name}</option>
-                {volist name="course" id="vo"}
-                <option value="{$vo.id}">{$vo.name}</option>
-                {/volist}
-              </select>
-              <!-- </div> -->
+
+              <div class="layui-form-item">
+
+
+                <select id="cate_id" name="course_id" id="processState" lay-filter="aihao">
+                  <option value="">请选择</option>
+                  {volist name="$course" id="vo"}
+                  <option value="{$vo.id}" {notempty name="$course.cate_id" }{eq name="$course.cate_id" value="$vo.id" }
+                    selected="" {/eq}{/notempty}>{$vo.name}</option>
+                  {/volist}
+                </select>
+
+              </div>
+
             </td>
             <td> <button class="layui-btn" lay-submit lay-filter="test"><i class="layui-icon">&#xe681;</i></button></td>
           </tr>

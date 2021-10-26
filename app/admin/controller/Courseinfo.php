@@ -6,6 +6,7 @@ use think\Controller;
 use app\admin\model\Course as CourseModel;
 use app\admin\model\CourseInfo as CourseinfoModel;
 use think\Db;
+
 /**
  * 课时控制器
  */
@@ -20,23 +21,23 @@ class Courseinfo extends Controller
             $where['name'] = ['like', '%' . $post['keywords'] . '%'];
         }
 
-        if(isset($post['create_time']) and !empty($post['create_time'])) {
+        if (isset($post['create_time']) and !empty($post['create_time'])) {
             $min_time = strtotime($post['create_time']);
             $max_time = $min_time + 24 * 60 * 60;
-            $where['create_time'] = [['>=',$min_time],['<=',$max_time]];
+            $where['create_time'] = [['>=', $min_time], ['<=', $max_time]];
         }
 
-        $course = empty($where) ? $model->order('create_time desc')->paginate(20) : $model->where($where)->order('create_time desc')->paginate(20,false,['query'=>$this->request->param()]);
-             
+        $course = empty($where) ? $model->order('create_time desc')->paginate(20) : $model->where($where)->order('create_time desc')->paginate(20, false, ['query' => $this->request->param()]);
+
         $this->assign('course', $course);
-        return $this->fetch();      
+        return $this->fetch();
     }
     public function publish()
     {
         $courseModel = new CourseModel();
         $courseinfoModel = new CourseinfoModel();
         $id = $this->request->has('id') ? $this->request->param('id', 0, 'intval') : 0;
-       
+
         if ($id > 0) {
             if ($this->request->isPost()) {
                 $post = $this->request->post();
@@ -52,15 +53,24 @@ class Courseinfo extends Controller
                     return $this->error($validate->getError());
                 }
 
+                $courseM = $courseModel->get($post['course_id']);
+                if ($post['is_toll'] == 1
+                 && $courseM['is_toll'] == 0) {
+                    return $this->error('对应课程是免费的，不能设置收费');
+                 }
+                // if ($info['is_toll'] == 1
+                //  && $info->course->is_toll == 0) {
+                //     return $this->error('对应课程是免费的，不能设置收费');
+                // }
                 $info = $courseinfoModel->get($id);
                 if ($info->allowField(true)->save($post)) {
                     return $this->success('修改成功', 'admin/courseinfo/index');
                 } else {
                     return $this->error('修改失败', 'admin/courseinfo/index');
                 }
-            } else {               
-                $curseinfo = $courseinfoModel->get($id);           
-                $curmodel = $courseModel->all();
+            } else {
+                $curseinfo = $courseinfoModel->get($id);
+                $curmodel = $courseModel->where('is_online',1)->select();
                 $coursemodel['name'] = $curseinfo->course->name;
                 $coursemodel['id'] = $curseinfo->course->id;
                 $this->assign('info', $coursemodel);
@@ -83,8 +93,16 @@ class Courseinfo extends Controller
                 if (!$validate->check($post)) {
                     return $this->error($validate->getError());
                 }
-
-
+                $courseM = $courseModel->get($post['course_id']);
+                if ($post['is_toll'] == 1
+                 && $courseM['is_toll'] == 0) {
+                    return $this->error('对应课程是免费的，不能设置收费');
+                 }
+                $info = $courseinfoModel->get($id);
+                if ($post['is_toll'] == 1
+                 && $info->course->is_toll == 0) {
+                    return $this->error('对应课程是免费的，不能设置收费');
+                 }
                 if ($courseinfoModel->allowField(true)->save($post)) {
                     return $this->success('添加成功', 'admin/courseinfo/index');
                 } else {
@@ -93,7 +111,7 @@ class Courseinfo extends Controller
             } else {
 
                 $cate = new CourseModel();
-                $ret = $cate->where('is_online',1)->select();
+                $ret = $cate->where('is_online', 1)->select();
                 $this->assign('cates', $ret);
                 return $this->fetch();
             }
@@ -119,7 +137,7 @@ class Courseinfo extends Controller
     //上传图片
     public function upload($module = 'admin', $use = 'admin_courseinfo')
     {
-        
+
         if ($this->request->file('file')) {
             $file = $this->request->file('file');
         } else {
@@ -143,16 +161,16 @@ class Courseinfo extends Controller
     //上传视频
     public function uploadVideo($module = 'admin', $use = 'courseinfo_videos')
     {
-         if ($this->request->file('layuiVideo')) {
+        if ($this->request->file('layuiVideo')) {
             $file = $this->request->file('layuiVideo');
         } else {
             $res['code'] = 1;
             $res['msg'] = '没有上传文件';
             return json($res);
         }
-        $info = $file->move(ROOT_PATH . 'public' . DS . 'uploads' . DS .$module.DS.$use );
+        $info = $file->move(ROOT_PATH . 'public' . DS . 'uploads' . DS . $module . DS . $use);
         if ($info) {
-            $res['src'] = DS . 'uploads' . DS . $module . DS . $use.$this->request->post()['course_name'] . DS . $info->getSaveName();
+            $res['src'] = DS . 'uploads' . DS . $module . DS . $use . DS . $info->getSaveName();
             $res['code'] = 2;
             return json($res);
         } else {
