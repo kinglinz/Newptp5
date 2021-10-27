@@ -51,13 +51,13 @@ class Course extends Permissions
                 $check =  [
                     ['name', 'require', '标题不能为空'],
                     ['num', 'require', '请设置课时'],
-                    ['is_toll', 'require', '设置收费'],
+                   // ['is_toll', 'require', '设置收费'],
                     ['image', 'require', '请上传缩略图'],
                     ['num', 'number', '课时必须是数字']
                 ];
-                if ($post['is_toll'] == 1) {
-                    array_push($check, ['price', 'require', '请填写金额']);
-                }
+                // if ($post['is_toll'] == 1) {
+                //     array_push($check, ['price', 'require', '请填写金额']);
+                // }
                 $validate = new \think\Validate($check);
 
                 if (!$validate->check($post)) {
@@ -85,7 +85,7 @@ class Course extends Permissions
                 $check =  [
                     ['name', 'require', '标题不能为空'],
                     ['num', 'require', '请设置课时'],
-                    ['is_toll', 'require', '设置收费'],
+                  //  ['is_toll', 'require', '设置收费'],
                     ['image', 'require', '请上传缩略图'],
                     ['num', 'number', '课时必须是数字'],
                     ['price', 'number', '价格必须是数字']

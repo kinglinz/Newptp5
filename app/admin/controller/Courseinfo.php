@@ -41,23 +41,22 @@ class Courseinfo extends Controller
         if ($id > 0) {
             if ($this->request->isPost()) {
                 $post = $this->request->post();
-                $validate = new \think\Validate(
-                    [
-                        ['name', 'require', '标题不能为空'],
-                        ['image', 'require', '请上传缩略图'],
-                        ['video', 'require', '视频不能为空'],
-                        ['course_id', 'require', '课程分类不能为空'],
-                    ]
-                );
+                $check =  [
+                    ['name', 'require', '标题不能为空'],
+                    ['image', 'require', '请上传缩略图'],
+                    ['video', 'require', '视频不能为空'],
+                    ['course_id', 'require', '课程分类不能为空'],
+                ];
+                if ($post['is_toll'] == 1) {
+                    array_push($check, ['is_toll', 'require', '请填写金额'],);
+                }
+
+                $validate = new \think\Validate($check);
                 if (!$validate->check($post)) {
                     return $this->error($validate->getError());
                 }
-
                 $courseM = $courseModel->get($post['course_id']);
-                if ($post['is_toll'] == 1
-                 && $courseM['is_toll'] == 0) {
-                    return $this->error('对应课程是免费的，不能设置收费');
-                 }
+
                 // if ($info['is_toll'] == 1
                 //  && $info->course->is_toll == 0) {
                 //     return $this->error('对应课程是免费的，不能设置收费');
@@ -83,26 +82,32 @@ class Courseinfo extends Controller
             //dump($this->request->post());   
             if ($this->request->isPost()) {
                 $post = $this->request->post();
-                $validate = new \think\Validate([
+                $check =  [
                     ['name', 'require', '标题不能为空'],
                     ['image', 'require', '请上传缩略图'],
                     ['video', 'require', '视频不能为空'],
-                    ['course_id', 'require', '课程分类不能为空'],
-                ]);
+                    ['course_id', 'require', '课程分类不能为空']
+                ];
+
+                if ($post['is_toll'] == 1) {
+                    array_push($check, ['is_toll', 'require', '请填写金额'],);
+                }
+
+                $validate = new \think\Validate($check);
 
                 if (!$validate->check($post)) {
                     return $this->error($validate->getError());
                 }
-                $courseM = $courseModel->get($post['course_id']);
-                if ($post['is_toll'] == 1
-                 && $courseM['is_toll'] == 0) {
-                    return $this->error('对应课程是免费的，不能设置收费');
-                 }
-                $info = $courseinfoModel->get($id);
-                if ($post['is_toll'] == 1
-                 && $info->course->is_toll == 0) {
-                    return $this->error('对应课程是免费的，不能设置收费');
-                 }
+                //$courseM = $courseModel->get($post['course_id']);
+                // if ($post['is_toll'] == 1
+                //  && $courseM['is_toll'] == 0) {
+                //     return $this->error('对应课程是免费的，不能设置收费');
+                //  }
+                // $info = $courseinfoModel->get($id);
+                // if ($post['is_toll'] == 1
+                //  && $info->course->is_toll == 0) {
+                //     return $this->error('对应课程是免费的，不能设置收费');
+                //  }
                 if ($courseinfoModel->allowField(true)->save($post)) {
                     return $this->success('添加成功', 'admin/courseinfo/index');
                 } else {

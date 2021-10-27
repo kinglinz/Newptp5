@@ -61,22 +61,29 @@
         </div>
       </div>
 
+
       <div class="layui-form-item">
         <label class="layui-form-label">是否收费</label>
         <div class="layui-input-block">
-          {notempty name="$cate"}
+          {notempty name="$cate.id"}
           <input name="is_toll" lay-filter="er" id="price" value="1" type="radio" title="是" {ea name="$cate.is_toll"
             value='1' } checked="checked" {/eq}>
           <input name="is_toll" lay-filter="er" id="price" value="0" type="radio" title="否" {eq name="$cate.is_toll"
             value='0' } checked="checked" {/eq}>
           {/notempty}
-          {empty name="$cate"}
+          {empty name="$cate.id"}
           <input name="is_toll" lay-filter="er" id="price" value="1" type="radio" title="是" checked="">
           <input name="is_toll" lay-filter="er" id="price" value="0" type="radio" title="否">
           {/empty}
         </div>
       </div>
-
+      <div class="layui-form-item price" id='de'>
+        <label class="layui-form-label">金额</label>
+        <div class="layui-input-block" style="max-width:200px;">
+          <input name="price" lay-filter="price" id='pp' lay-verify="title" autocomplete="off" placeholder="请输入金额"
+            class="layui-input" type="text" {notempty name="$cate.price" }value="{$cate.price}" {/notempty}>
+        </div>
+      </div>
 
       <div class="layui-upload" id="upload-thumb">
         <label class="layui-form-label">缩略图</label>
@@ -227,6 +234,15 @@
           , dropdown = layui.dropdown
         form = layui.form;
         $(window).on('load', function () {
+          form.on('radio(er)', function (data) {
+            if (data.value == 1) {
+              $('.price').show();
+            } else {
+              $('#pp').val('');
+              $('.price').hide();
+            }
+          });
+
           form.on('submit(admin)', function (data) {
             $.ajax({
               url: "{:url('admin/courseinfo/publish')}",
@@ -246,6 +262,16 @@
             return false;
           });
         });
+      });
+
+      $(function(){
+         var checkValue=$("#price").val();
+          if(checkValue ==1){
+            $('.price').show();
+          }else {
+              $('#pp').val('');
+              $('.price').hide();
+            }
       });
     </script>
 

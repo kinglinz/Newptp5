@@ -31,7 +31,11 @@ class Course extends Login
             }
         }
         if (!empty($data)) {
-            return tojson($data);
+             return json([
+                'code' => 0,
+                'msg' => "",
+                'data' => $data
+            ]);
         } else {
             return tojson();
         }
@@ -47,18 +51,21 @@ class Course extends Login
         $cmodel = new courseModel();
         $d = $cmodel->get($cid);
         $infoModel = new CourseInfo();
-        $data = $infoModel->where('course_id', $cid)->order('name')->select();
-        
-       //dump($d);die;
-        if(!empty($data)){
-            $data['descrption']  = $d['descrption'];
-            if($d['is_toll'] == 1){
-                return $this->is_toll($data,$uid,$cid);
-            }else{
-                return "dddddd";
-            }
-        }else{
-            return '没有此课程';
+        $ret = $infoModel->where('course_id', $cid)->order('name')->select();
+        if (!empty($ret)) {
+            $data['descrption'] = $d['descrption'];
+            return json([
+                'code' => 0,
+                'msg' => "",
+                'data' => $data
+            ]);
+            return json($data);
+        } else {
+            return json([
+                'code' => -1,
+                'msg' => "没有此数据",
+                'data' => ""
+            ]);
         }
     }
 
@@ -70,23 +77,29 @@ class Course extends Login
         $infoModel = new CourseInfo();
         $learn = new LearnModel();
 
-        $ret = $learn->field('id')->where('user_id',$uid)->where('course_info_id',$cid)->find();
-        //return($ret);
-        if(empty($ret)){
+        $ret = $learn->field('id')->where('user_id', $uid)->where('course_info_id', $cid)->find();
+        
+        if (empty($ret)) {
             $learn->course_info_id = $cid;
             $learn->user_id = $uid;
             $learn->allowField(true)->save();
         }
 
-        $data = $infoModel->get($cid);
-          
-        if(!empty($data)){
-            if($data['is_toll'] == 1){
-                return $this->is_toll($data,$uid);
-            }else{
-                return tojson();
+        $ret = $infoModel->where('id', $cid)->find();
+       // dump($ret);dump($cid);
+        if (!empty($ret)) {
+            if ($this->is_toll($uid, $cid)) {
+                return json([
+                    'code' => 0,
+                    'msg' => "",
+                    'data' => $ret
+                ]);
+                
+            } else {
+             
+                return "收费";
             }
-        }else{
+        } else {
             return tojson();
         }
     }
@@ -161,13 +174,13 @@ class Course extends Login
     }
 
 
-    public function is_toll($data,$uid,$cid="")
+    public function is_toll($uid,$cid)
     {
-        $retsult = Db::name('buy_course')->field('id')->where('user_id',$uid)->where('course_id',$cid)->find();
-        if(!empty($retsult)){
-            return json($data);
-        }else{
-            return "需要购买";
+        $retsult = Db::name('buy_course')->field('id')->where('user_id', $uid)->where('course_info_id', $cid)->find();
+        if (!empty($retsult)) {
+            return true;
+        } else {
+            return false;
         }
     }
 }
