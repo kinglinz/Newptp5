@@ -8,6 +8,8 @@ use app\admin\model\CourseInfo;
 use app\admin\model\BuyCourse as BuyPmodel;
 use app\admin\model\CourseCate as CourseCateModel;
 use app\admin\model\Learn as LearnModel;
+use app\admin\model\Plan as PlanModel;
+use app\admin\model\PlanCate as PlanCateModel;
 use think\Db;
 
 
@@ -31,7 +33,7 @@ class Course extends Login
             }
         }
         if (!empty($data)) {
-             return json([
+            return json([
                 'code' => 0,
                 'msg' => "",
                 'data' => $data
@@ -78,7 +80,7 @@ class Course extends Login
         $learn = new LearnModel();
 
         $ret = $learn->field('id')->where('user_id', $uid)->where('course_info_id', $cid)->find();
-        
+
         if (empty($ret)) {
             $learn->course_info_id = $cid;
             $learn->user_id = $uid;
@@ -86,7 +88,6 @@ class Course extends Login
         }
 
         $ret = $infoModel->where('id', $cid)->find();
-       // dump($ret);dump($cid);
         if (!empty($ret)) {
             if ($this->is_toll($uid, $cid)) {
                 return json([
@@ -94,9 +95,7 @@ class Course extends Login
                     'msg' => "",
                     'data' => $ret
                 ]);
-                
             } else {
-             
                 return "收费";
             }
         } else {
@@ -105,6 +104,37 @@ class Course extends Login
     }
 
 
+
+    public function getplanlist()
+    {
+        $planModel = new PlanModel();
+        $pcateModel = new PlanCateModel();
+        $data = array();
+        $plan = $planModel->select();
+        $pcate = $pcateModel->select();
+        //dump(count($pcate));die;
+        for ($i = 0; $i < count($pcate); $i++) {
+            for ($j = 0; $j < count($plan); $j++) {
+                if ($plan[$j]['cate_id'] == $pcate[$i]['id']) {
+                    $data[$pcate[$i]['name']] = $plan[$j];
+                }
+            }
+        }
+
+        if (!empty($data)) {
+            return json([
+                'code' => 0,
+                'msg' => '',
+                'data' => $data
+            ]);
+        } else {
+            return json([
+                'code' => -1,
+                'msg' => '没有数据',
+                'data' => ''
+            ]);
+        }
+    }
     // //获取培训列表
     // public function getReal(){
     //     $coursemodel = new courseModel();
@@ -173,8 +203,13 @@ class Course extends Login
         return json(['data1' => $result1, 'data2' => $result2]);
     }
 
-
-    public function is_toll($uid,$cid)
+    /**
+     * 检测用户是否购买
+     * @param  $uid 用id
+     * @param  $cid 课程id
+     * @return bool
+     */
+    public function is_toll($uid, $cid)
     {
         $retsult = Db::name('buy_course')->field('id')->where('user_id', $uid)->where('course_info_id', $cid)->find();
         if (!empty($retsult)) {
