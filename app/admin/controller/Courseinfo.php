@@ -70,7 +70,7 @@ class Courseinfo extends Controller
                 }
             } else {
                 $curseinfo = $courseinfoModel->get($id);
-                $curmodel = $courseModel->where('is_online',1)->select();
+                $curmodel = $courseModel->select();
                 $coursemodel['name'] = $curseinfo->course->name;
                 $coursemodel['id'] = $curseinfo->course->id;
                 $this->assign('info', $coursemodel);
@@ -111,7 +111,7 @@ class Courseinfo extends Controller
             } else {
 
                 $cate = new CourseModel();
-                $ret = $cate->where('is_online', 1)->select();
+                $ret = $cate->select();
                 $this->assign('cates', $ret);
                 return $this->fetch();
             }

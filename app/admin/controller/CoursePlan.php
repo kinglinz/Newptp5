@@ -4,9 +4,9 @@ namespace app\admin\controller;
 
 
 use app\admin\model\CoursePlan as CoursePlanModel;
-use app\admin\model\Course as CourseModel;
+use app\admin\model\Plan as PlanModel;
 use think\Request;
-
+//培训安排
 class CoursePlan extends Permissions
 {
     public function index()
@@ -43,10 +43,10 @@ class CoursePlan extends Permissions
                     return $this->error('修改失败','admin\course_plan\index');
                 }
             } else {
-                $cmodel = new CourseModel();
+                $cmodel = new PlanModel();
                 $pmodel = new CoursePlanModel();
                 $plan = $pmodel->get($id);
-                $data = $cmodel->where("is_online",0)->select();
+                $data = $cmodel->select();
                 $this->assign("info",$plan);
                 $this->assign("cate",$data);
                 dump($plan['start_time']);
@@ -58,7 +58,7 @@ class CoursePlan extends Permissions
                 $validate = new  \think\Validate([
                     ['title','require','标题不能为空'],
                     ['class','require','班级不能为空'],
-                    ['course_id','require','课程分类不能为空'],
+                    ['plan_id','require','课程分类不能为空'],
                     ['location','require','位置不能为空'],
                     ['class_hour','require','课时不能为空'],
                     ['start_time','require','时间不能为空'],
@@ -74,10 +74,10 @@ class CoursePlan extends Permissions
                     return $this->error('添加失败','admin\course_plan\index');
                 }
             } else {
-                $cmodel = new CourseModel();
+                $cmodel = new PlanModel();
                 $pmodel = new CoursePlanModel();
                 $plan = $pmodel->get($id);
-                $data = $cmodel->where("is_online",0)->select();
+                $data = $cmodel->select();
                 $this->assign("info",$plan);
                 $this->assign("cate",$data);
                 return $this->fetch();

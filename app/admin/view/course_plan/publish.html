@@ -61,11 +61,11 @@
         <label class="layui-form-label">课程</label>
         <div class="layui-input-block" style="max-width:600px;">
 
-          <select id="course_id" name="course_id" id="processState" lay-filter="aihao">
+          <select id="course_id" name="plan_id" id="processState" lay-filter="aihao">
            
             <option value="">请选择</option>
             {volist name="cate" id="vo"}       
-            <option value="{$vo.id}" {notempty name="$info.course_id"}{eq name="$info.course_id" value="$vo.id"} selected=""{/eq}{/notempty}>{$vo.name}</option>
+            <option value="{$vo.id}" {notempty name="$info.plan_id"}{eq name="$info.plan_id" value="$vo.id"} selected=""{/eq}{/notempty}>{$vo.name}</option>
             {/volist}
           </select>
         </div>

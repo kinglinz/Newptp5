@@ -10,6 +10,10 @@ class Loopimage extends Controller
     public function get()
     {      
         $img = new LoopImg();
-        return json($img->where('status', 1)->select());
+        $data = $img->where('status', 1)->select();
+        if(!empty($data))
+            return tojson($data);
+        else 
+            return tojson();
     }
 }

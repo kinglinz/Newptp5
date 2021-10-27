@@ -26,12 +26,11 @@
   <div class="tplay-body-div">
     <div class="layui-tab">
       <ul class="layui-tab-title">
-        <li class="layui-this">培训列表
-        </li>
-        <li><a href="{:url('admin/course_plan/publish')}" class="a_menu">新增培训</a></li>
+        <li class="layui-this">分类列表</li>
+        <li><a href="{:url('admin/plan_cate/publish')}" class="a_menu">新增分类</a></li>
       </ul>
     </div>
-    <form class="layui-form serch" action="{:url('admin/courseinfo/index')}" method="post">
+    <form class="layui-form serch" action="{:url('admin/plan_cate/index')}" method="post">
       <div class="layui-form-item" style="float: left;">
         <div class="layui-input-inline">
           <input type="text" name="keywords" lay-verify="title" autocomplete="off" placeholder="请输入关键词"
@@ -51,43 +50,36 @@
     <table class="layui-table" lay-size="sm">
       
       <colgroup>
+        <col width="50">
         <col width="150">
-        <col width="250">
-        <col width="50">
         <col width="500">
-        <col width="50">
-        <col width="50">
+        <col width="200">
+        <col width="100">
       </colgroup>
       <thead>
         <tr>
-         
-          <th>名称</th>
-          <th>课程</th>
-          <th>课时</th>
-          <th>班级</th>
-          <th>位置</th>
+          <th>编号</th>
+          <th>名称</th>   
           <th>操作</th>
         </tr> 
       </thead>
       <tbody>
         {volist name="course" id="vo"}
         <tr>
-          <td>{$vo.title}</td>
-          <td><span style="font-weight:500;"></span>{$vo.plan_id}</td>
-          <td>{$vo.class_hour}</td>
-          <td>{$vo.class}</td>
-          <td>{$vo.location}</td>
-          <td class="operation-menu">
+          <td>{$vo.id}</td>
+          <td><span style="font-weight:500;"></span>{$vo.name}</td>
+            <td class="operation-menu">
             <div class="layui-btn-group">
-              <a href="{:url('admin/course_plan/publish',['id'=>$vo.id])}" class="layui-btn layui-btn-xs a_menu layui-btn-primary" style="margin-right: 0;font-size:12px;"><i class="layui-icon"></i></a>
-               <a href="javascript:;" class="layui-btn layui-btn-xs layui-btn-primary delete" id="{$vo.id}" style="margin-right: 0;font-size:12px;"><i class="layui-icon"></i></a>
+              <a href="{:url('admin/plan_cate/publish',['id'=>$vo.id])}" class="layui-btn layui-btn-xs a_menu layui-btn-primary" style="margin-right: 0;font-size:12px;"><i class="layui-icon"></i></a>
+              <a href="{:url('admin/plan_cate/publish',['pid'=>$vo.id])}" class="layui-btn layui-btn-xs a_menu layui-btn-primary" style="margin-right: 0;font-size:12px;"><i class="layui-icon"></i></a>
+              <a href="javascript:;" class="layui-btn layui-btn-xs layui-btn-primary delete" id="{$vo.id}" style="margin-right: 0;font-size:12px;"><i class="layui-icon"></i></a>
             </div>
           </td>
         </tr>
         {/volist}
       </tbody>
     </table>
-    <div style="padding: 0 20px;"></div>
+    <div style="padding: 0 20px;">{$course->render()}</div>
     {include file="public/foot"}
     <script type="text/javascript">
 
@@ -95,7 +87,7 @@
       var id = $(this).attr('id');
       layer.confirm('确定要删除?', function(index) {
         $.ajax({
-          url:"{:url('admin/course_plan/delete')}",
+          url:"{:url('admin/plan_cate/delete')}",
           data:{id:id},
           success:function(res) {
             layer.msg(res.msg);

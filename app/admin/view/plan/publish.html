@@ -17,8 +17,8 @@
   <div class="tplay-body-div">
     <div class="layui-tab">
       <ul class="layui-tab-title">
-        <li><a href="{:url('admin/course/index')}" class="a_menu">课程管理</a></li>
-        <li class="layui-this">新增课程</li>
+        <li><a href="{:url('admin/plan/index')}" class="a_menu">培训管理</a></li>
+        <li class="layui-this">新增培训</li>
       </ul>
     </div>
     <div style="margin-top: 20px;">
@@ -144,8 +144,8 @@
         //执行实例
         var uploadInst = upload.render({
           elem: '#thumb' //绑定元素
-          , url: "{:url('course/upload')}" //上传接口
-          , data: { use: 'course_thumb' }
+          , url: "{:url('plan/upload')}" //上传接口
+          , data: { use: 'plan_thumb' }
           , done: function (res) {
             //上传完毕回调
             if (res.code == 2) {
@@ -184,7 +184,7 @@
           });
           form.on('submit(admin)', function (data) {
             $.ajax({
-              url: "{:url('admin/course/publish')}",
+              url: "{:url('admin/plan/publish')}",
               data: $('#admin').serialize(),
               type: 'post',
               async: false,
