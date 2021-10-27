@@ -1,14 +1,13 @@
 <?php
 
 namespace app\admin\controller;
-
-use think\Controller;
-use app\admin\model\Course as CourseModel;
-
 use think\Db;
 use think\Session;
 
-class Course extends Controller
+use app\admin\model\Course as CourseModel;
+use app\admin\model\CourseCate as CourseCateModel;
+
+class Course extends Permissions
 {
     public function index()
     {
@@ -20,8 +19,8 @@ class Course extends Controller
             $where['is_top'] = $post['is_top'];
         }
 
-        if (isset($post['status']) and ($post['status'] == 1 or $post['status'] === '0')) {
-            $where['status'] = $post['status'];
+        if (isset($post['is_toll']) and ($post['is_toll'] == 1 or $post['is_toll'] === '0')) {
+            $where['is_toll'] = $post['is_toll'];
         }
 
         if (isset($post['keywords']) and !empty($post['keywords'])) {
@@ -34,9 +33,10 @@ class Course extends Controller
             $where['create_time'] = [['>=', $min_time], ['<=', $max_time]];
         }
 
-        $course = empty($where) ? $model->order('create_time desc')->paginate(20) : $model->where($where)->order('create_time desc')->paginate(20, false, ['query' => $this->request->param()]);  
-        //dump($course);
+        $course = empty($where) ? $model->order('create_time desc')->paginate(20) : $model->where($where)->order('create_time desc')->paginate(20, false, ['query' => $this->request->param()]);
+
         $this->assign('course', $course);
+
         return $this->fetch();
     }
 
@@ -44,7 +44,6 @@ class Course extends Controller
     public function publish()
     {
         $id = $this->request->has('id') ? $this->request->param('id', 0, 'intval') : 0;
-       
         $course = new CourseModel();
         if ($id > 0) {
             if ($this->request->isPost()) { //修改
@@ -52,13 +51,13 @@ class Course extends Controller
                 $check =  [
                     ['name', 'require', '标题不能为空'],
                     ['num', 'require', '请设置课时'],
-                    ['status', 'require', '设置收费'],
+                   // ['is_toll', 'require', '设置收费'],
                     ['image', 'require', '请上传缩略图'],
                     ['num', 'number', '课时必须是数字']
                 ];
-                if($post['status'] == 1){
-                    array_push($check,['price','require','请填写金额']);
-                }
+                // if ($post['is_toll'] == 1) {
+                //     array_push($check, ['price', 'require', '请填写金额']);
+                // }
                 $validate = new \think\Validate($check);
 
                 if (!$validate->check($post)) {
@@ -70,27 +69,27 @@ class Course extends Controller
                     return $this->success('修改成功', 'admin/course/index');
                 }
             } else {
-                $result = $course->get($id)->toArray(); 
+
+                $momdel = new CourseCateModel();
+                $data = $momdel->all();
+                $this->assign("info",$data);
+                $result = $course->get($id)->toArray();
                 $this->assign('course', $result);
                 return $this->fetch();
             }
         } else {
-           
+
             if ($this->request->isPost()) { //新增
                 //获取提交参数
-                //dump($this->request->post());die;
                 $post = $this->request->post();
                 $check =  [
                     ['name', 'require', '标题不能为空'],
                     ['num', 'require', '请设置课时'],
-                    ['status', 'require', '设置收费'],
+                  //  ['is_toll', 'require', '设置收费'],
                     ['image', 'require', '请上传缩略图'],
                     ['num', 'number', '课时必须是数字'],
                     ['price', 'number', '价格必须是数字']
                 ];
-                // if($post['status'] == 1){
-                //     array_push($check,['price','require','请填写金额']);
-                // }
                 $validate = new \think\Validate($check);
                 $post['admin_id'] = Session::get('admin');
                 if (!$validate->check($post)) {
@@ -102,16 +101,13 @@ class Course extends Controller
                     return $this->success('添加成功', 'admin/course/index');
                 }
             } else {
-               
-                // if($this->request->has('id')){
-                //     $id = $this->request->param('id');
-                //     return $id;
-                // }else{
-                //     return $this->error("id不正确");
-                // }
+                $momdel = new CourseCateModel();
+                $data = $momdel->all();
+                $this->assign("info",$data);
+                return $this->fetch();
             }
         }
-        return $this->fetch();
+       
     }
 
 
@@ -123,7 +119,6 @@ class Course extends Controller
             if (false == Db::name('course')->where('id', $post['id'])->update(['is_top' => $post['is_top']])) {
                 return $this->error('设置失败');
             } else {
-                //addlog($post['id']); //写入日志
                 return $this->success('设置成功', 'admin/course/index');
             }
         }

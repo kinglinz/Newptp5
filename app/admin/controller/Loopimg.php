@@ -115,6 +115,7 @@ class Loopimg extends Controller{
     public function delete(){
         $loopmodel = new LoopModel();
         $ret = $loopmodel->get($this->request->get('id'));
+        //dump($ret);die;
         if($ret->delete()){
             return $this->success('删除成功','admin/loopimg/index');
         }else{

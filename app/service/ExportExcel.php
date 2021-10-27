@@ -4,6 +4,8 @@ namespace app\service;
 
 // use PHPExcel;
 // use PHPExcel_IOFactory;
+
+use Exception;
 use think\Db;
 
 class ExportExcel
@@ -23,11 +25,20 @@ class ExportExcel
         // vendor('phpoffice.phpexcel.Classes.PHPexcel');
         // vendor('phpoffice.phpexcel.Classes.PHPexcel.IOFactory');
 
+        if(empty($list) ||   !is_array($list[0]) || empty($list)){
+            //throw new Exception("查询数据失败");
+            return json([
+                'code' => '-1','msg' => '数据导出失败'
+            ]);
+        }
+     
         if (empty($columName) || empty($list)) {
-            return '列名或者内容不能为空';
+            //throw new Exception('列名或者内容不能为空');
+              return json(['code' => '-1','msg' => '数据导出失败']);
         }
         if (count($list[0]) != count($columName)) {
-            return '列名跟数据的列不一致';
+            //return '列名跟数据的列不一致';
+            return json(['code' => '-1','msg' => '数据导出失败']);
         }
         $fileName = iconv("utf-8", "gb2312", $fileName);
         //实例化PHPExcel类
@@ -64,6 +75,35 @@ class ExportExcel
         exit;
     }
 
+
+    // 执行数据导入
+    public function doImport($fileName)
+    {
+
+        set_time_limit(90);
+       
+
+        $objPHPExcel = \PHPExcel_IOFactory::load($fileName);
+
+        //$sheet_count = $objPHPExcel->getSheetCount();
+       // for ($s = 0; $s < $sheet_count; $s++) {
+            $currentSheet = $objPHPExcel->getSheet(0); // 当前页 
+            $row_num = $currentSheet->getHighestRow(); // 当前页行数 
+            $col_max = $currentSheet->getHighestColumn(); // 当前页最大列号 
+        
+            // 循环从第二行开始，第一行往往是表头 
+            for ($i = 1,$d=0; $i <= $row_num;$d++, $i++) {        
+                for ($j = 'A'; $j <= $col_max; $j++) {
+                    $address = $j . $i; // 单元格坐标 
+                    $cell_values[$d][]= $currentSheet->getCell($address)->getFormattedValue();
+                }
+               
+            }
+
+            return $cell_values;
+        //}
+    }
+
     /**
      * @method   导出测试方法
      */
@@ -76,11 +116,12 @@ class ExportExcel
         //         ->field('id,username,password,profile_id')
         //         ->select();
         //第一行的列数据ID
-        $data = Db::query('select b.id,c.name as coursename,b.buy_time,user.name from tplay_buycourse as b INNER JOIN tplay_course as c ON(b.course_id=c.id) INNER JOIN tplay_user as u ON(b.user_id=u.id) INNER JOIN tplay_profile as user ON(u.profile_id=user.id);');
-      
-        $header = array('ID', '报名课程', '报名人', '创建时间');
-
+        $data = Db::query('select b.id,c.name as coursename,b.create_time,user.name from tplay_buy_course as b INNER JOIN tplay_course as c ON(b.course_id=c.id) INNER JOIN tplay_user as u ON(b.user_id=u.id) INNER JOIN tplay_profile as user ON(u.profile_id=user.id);');
+       
+        //设置表头
+        $header = array('ID', '报名课程', '报名人', '创建时间');       
         //调用导出方法
-        self::exportExcel1($header, $data, '报名'.date('Y-m-d'));
+        return self::exportExcel1($header, $data, '报名' . date('Y年m月d日 H.i'));
+
     }
 }

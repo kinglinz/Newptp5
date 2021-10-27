@@ -26,8 +26,8 @@
   <div class="tplay-body-div">
     <div class="layui-tab">
       <ul class="layui-tab-title">
-        <li class="layui-this">练习管理</li>
-        <li><a href="{:url('admin/courseinfo/publish')}" class="a_menu">新增练习</a></li>
+        <li class="layui-this">课时列表</li>
+        <li><a href="{:url('admin/courseinfo/publish')}" class="a_menu">新增课时</a></li>
       </ul>
     </div>
     <form class="layui-form serch" action="{:url('admin/courseinfo/index')}" method="post">
@@ -62,6 +62,7 @@
           <th>名称</th>
           <th>封面图</th>
           <th>视频地址</th>
+          <th>费用</th>
           <th>类别</th>
           <th>操作</th>
         </tr> 
@@ -73,6 +74,11 @@
           <td><span style="font-weight:500;"></span>{$vo.name}</td>
           <td><a href="{$vo.image}" class="tooltip"><img src="{$vo.image}" width="20" height="20"></a>
           <td>{$vo.video}</td>
+          {eq name="vo.price" value="0"} 
+            <td>免费</td>
+          {else/}
+            <td>{$vo.price}</td>
+          {/eq}
           <td>{$vo.course.name}</td>
           <td class="operation-menu">
             <div class="layui-btn-group">

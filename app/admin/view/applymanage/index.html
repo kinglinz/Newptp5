@@ -53,9 +53,10 @@
    
     <div  style="float: left; margin-left: 10px;">
       
-        <a style="text-decoration: none; color:white" href="{:url('admin/applymanage/exportexecl')}">
-          <button class="layui-btn layui-btn-danger layui-btn-sm" lay-submit="" lay-filter="serch">导出</button>
-      </a>
+       <a style="text-decoration: none; color:white" href="{:url('admin/applymanage/exportexecl')}"> -->
+          <button class="layui-btn layui-btn-danger layui-btn-sm" lay-submit="" 
+          id="export" type="button" lay-filter="exprot">导出</button>
+       </a> 
       
     </div>  
   </form>
@@ -77,6 +78,8 @@
         <tr>
           <th>ID</th>
           <th>报名课程</th>
+          <th>在线/培训</th>
+          <th>进度</th>
           <th>报名人</th>
           <th>报名时间</th>
           <th>操作</th>
@@ -87,15 +90,12 @@
         <tr>
           <td>{$vo.id}</td>
           <td>{$vo.course.name}</td>
+          <td>{$vo.is_online}</td>
+          <td>{$vo.status}</td>
           <td>{$vo.user.profile.name}</td>
-          <td>{$vo.buy_time}</td>
-
-
+          <td>{$vo.create_time}</td>
           <td class="operation-menu">
-            <div class="layui-btn-group">
-              <a href="{:url('admin/applymanage/publish',['id'=>$vo.id])}"
-                class="layui-btn layui-btn-xs a_menu layui-btn-primary" style="margin-right: 0;font-size:12px;"><i
-                  class="layui-icon"></i></a>
+            <div class="layui-btn-group">           
               <a href="javascript:;" class="layui-btn layui-btn-xs layui-btn-primary delete" id="{$vo.id}"
                 style="margin-right: 0;font-size:12px;"><i class="layui-icon"></i></a>
             </div>
@@ -112,7 +112,7 @@
         var id = $(this).attr('id');
         layer.confirm('确定要删除?', function (index) {
           $.ajax({
-            url: "{:url('admin/course/delete')}",
+            url: "{:url('admin/applycourse/delete')}",
             data: { id: id },
             success: function (res) {
               layer.msg(res.msg);
@@ -174,19 +174,7 @@
         } else {
           var status = 1;
         }
-        $.ajax({
-          type: "post",
-          url: "{:url('admin/article/status')}",
-          data: { status: status, id: id },
-          success: function (res) {
-
-            if (res.code == 1) {
-              tostatus();
-            } else {
-              layer.msg(res.msg);
-            }
-          }
-        })
+       
 
         function tostatus() {
           if (val == 1) {
@@ -198,6 +186,23 @@
           }
         }
       })
+    </script>
+    <script>
+      
+      // $("#export").click(function(){
+      //   $.ajax({
+      //     url: "{:url('admin/applymanage/exportexecl')}",
+      //     success : function(res){
+      //       if(res.code != -1){
+      //         layer.msg(res.msg);
+      //         $.download(downurl, 'post'); // 下载文件 
+      //       }else{
+      //         layer.msg(res.msg);         
+      //       }
+      //     }
+      //   });
+      // });
+
     </script>
   </div>
 </body>

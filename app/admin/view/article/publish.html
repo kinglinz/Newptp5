@@ -59,7 +59,9 @@
           <select name="article_cate_id" lay-filter="aihao">
             <option value="">请选择分类</option>
             {volist name="$cates" id="vo"}
-            <option value="{$vo.id}" {notempty name="$article.article_cate_id"}{eq name="$article.article_cate_id" value="$vo.id"} selected=""{/eq}{/notempty}>{$vo.str}{$vo.name}</option>
+            <option value="{$vo.id}" 
+            {notempty name="$article.article_cate_id"}
+            {eq name="$article.article_cate_id" value="$vo.id"} selected=""{/eq}{/notempty}>{$vo.str}{$vo.name}</option>
             {/volist}
           </select>
         </div>
