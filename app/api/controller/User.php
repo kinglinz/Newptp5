@@ -116,4 +116,23 @@ class User extends \app\jk\controller\Login
             return json(['code' => 200, 'msg' => '登录失败', 'jump' => url('reg')]);
         }
     }
+
+    public function getScore(){
+        $uid = 74;
+        $cid = 44;
+        $ret = Db::query("SELECT * FROM tplay_buy_plan WHERE `user_id`=? AND plan_id=?",[$uid,$cid]);
+        if($ret){
+            return json([
+                'code' => 0,
+                'msg' => '',
+                'data' => $ret
+            ]);
+        }else{
+            return json([
+                'code' => 0,
+                'msg' => '没有数据',
+                'data' => ''
+            ]);
+        }
+    }
 }

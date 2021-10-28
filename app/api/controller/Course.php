@@ -32,11 +32,11 @@ class Course extends Login
         $cmdata = $cm->select();
         for ($i = 0; $i < count($catedata); $i++) {
             for ($j = 0; $j < count($cmdata); $j++) {
-                if ($cmdata[$j]['cate_id'] == $catedata[$i]['id']){
-                   array_push($data1,$cmdata[$j]); 
+                if ($cmdata[$j]['cate_id'] == $catedata[$i]['id']) {
+                    array_push($data1, $cmdata[$j]);
                 }
             }
-            $data2[$i][$catedata[$i]['name']]=$data1;
+            $data2[$i][$catedata[$i]['name']] = $data1;
             $data1 = [];
         }
         if (!empty($data2)) {
@@ -59,11 +59,11 @@ class Course extends Login
     //获取课程详细信息
     public function getCourseInfoList()
     {
-        $cid = $this->request->get('id');  
+        $cid = $this->request->get('id');
         $cmodel = new courseModel();
         $d = $cmodel->get($cid);
         $infoModel = new CourseInfo();
-        $ret = $infoModel->where('course_id', $cid)->order('name')->select();  
+        $ret = $infoModel->where('course_id', $cid)->order('name')->select();
         if (!empty($ret)) {
             $data['descrption'] = $d['descrption'];
             return json([
@@ -85,51 +85,50 @@ class Course extends Login
     public function getcourseinfo()
     {
         $cid = $this->request->get('cid');
-        if(!isset($cid) || empty($cid)){
-            return json(['code'=>-1,'msg'=>'参数不正确','data'=>'']);
+        if (!isset($cid) || empty($cid)) {
+            return json(['code' => -1, 'msg' => '参数不正确', 'data' => '']);
         }
         $uid = 98;
         $infoModel = new CourseInfo();
         $learn = new LearnModel();
-        
+
         //获取课程
-        $courseinfo = Db::query("SELECT * FROM tplay_course_info WHERE id=?",[$cid]);
-        if(!empty($courseinfo)){
-            if($courseinfo[0]['is_toll'] == 1){//收费     
+        $courseinfo = Db::query("SELECT * FROM tplay_course_info WHERE id=?", [$cid]);
+        if (!empty($courseinfo)) {
+            if ($courseinfo[0]['is_toll'] == 1) { //收费     
                 //查看是否购买
-                $ret = Db::query("SELECT id FROM tplay_buy_course WHERE user_id=? AND course_info_id=?",[$uid,$cid]);     
-                if(!empty($ret)){
+                $ret = Db::query("SELECT id FROM tplay_buy_course WHERE user_id=? AND course_info_id=?", [$uid, $cid]);
+                if (!empty($ret)) {
                     return json([
                         'code' => 0,
                         'msg' => "",
                         'data' => $courseinfo
                     ]);
-                }else{
-                    return json(['code'=>-1,'msg'=>'需要购买','data'=>'']);
+                } else {
+                    return json(['code' => -1, 'msg' => '需要购买', 'data' => '']);
                 }
-            }else{//不收费
-                $ret = Db::query('SELECT id FROM tplay_buy_course WHERE user_id=? AND course_info_id=?',[$uid,$cid]);
-                if(empty($ret)){
+            } else { //不收费
+                $ret = Db::query('SELECT id FROM tplay_buy_course WHERE user_id=? AND course_info_id=?', [$uid, $cid]);
+                if (empty($ret)) {
                     Db::execute('INSERT INTO tplay_buy_course (course_info_id,`user_id`,create_time,score,`status`)VALUES(
-                        ?,?,?,?,?)',[$cid,$uid,time(),0,0]);
-                }           
+                        ?,?,?,?,?)', [$cid, $uid, time(), 0, 0]);
+                }
                 //加入学习计划
-                $ret = Db::query("SELECT id FROM tplay_learn WHERE user_id=? AND course_info_id=?",[$uid,$cid]);
-                if(empty($ret)){
+                $ret = Db::query("SELECT id FROM tplay_learn WHERE user_id=? AND course_info_id=?", [$uid, $cid]);
+                if (empty($ret)) {
                     $learn->course_info_id = $cid;
                     $learn->user_id = $uid;
                     $learn->allowField(true)->save();
-                }               
+                }
                 return json([
                     'code' => 0,
                     'msg' => "",
                     'data' => $courseinfo
                 ]);
             }
-        }else{
-            return json(['code'=>-1,'msg'=>'没有数据','data'=>'']);
+        } else {
+            return json(['code' => -1, 'msg' => '没有数据', 'data' => '']);
         }
-        
     }
 
 
@@ -141,7 +140,7 @@ class Course extends Login
         $data = array();
         $plan = $planModel->select();
         $pcate = $pcateModel->select();
-        //dump(count($pcate));die;
+
         for ($i = 0; $i < count($pcate); $i++) {
             for ($j = 0; $j < count($plan); $j++) {
                 if ($plan[$j]['cate_id'] == $pcate[$i]['id']) {
@@ -165,69 +164,84 @@ class Course extends Login
         }
     }
 
-    public function getplan(Request $request){
+    public function getplan(Request $request)
+    {
         $cid = $request->get('cid');
         $uid = 88;
 
-        $ret = $this->is_toll($uid,$cid,1);
-        if($ret){
+        $ret = $this->is_toll($uid, $cid, 1);
+        if ($ret) {
             $coursePlanModel = new CoursePlanModel();
             $ret = $coursePlanModel->get($cid);
-            if(!empty($ret)){
+            if (!empty($ret)) {
                 return json([
                     'code' => 0,
                     'msg' => '',
                     'data' => $ret
                 ]);
-            }else{
+            } else {
                 return json([
                     'code' => -1,
                     'msg' => '没有数据',
                     'data' => ''
                 ]);
             }
-        }else{
+        } else {
+            return json([
+                'code' => -1,
+                'msg' => '没有数据',
+                'data' => ''
+            ]);
+        }
+    }
 
+
+
+    //培训报名资格检测
+    public function checkapply()
+    {
+        //$cid = $request->get('cid');
+        $uid = 88;
+        $ret1 = Db::query("SELECT id FROM tplay_course_info");
+        $ret2 = Db::query("SELECT id,`status` FROM tplay_buy_course WHERE user_id=?", [$uid]);
+        if (empty($ret1) || empty($ret2)) {
+            return json([
+                'code' => -1,
+                'msg' => '数据请求出错',
+                'data' => ''
+            ]);
+        }
+
+        if (count($ret1) == count($ret2)) {
+            foreach($ret2 as $tmp){
+                if($tmp['status'] == 0){
+                    return json([
+                        'code' => -1,
+                        'msg' => '您还没有完成线上课程',
+                        'data' => ''
+                    ]);
+                }
+            }
+        } else {
+            return json([
+                'code' => -1,
+                'msg' => '您还没有完成线上课程',
+                'data' => ''
+            ]);
         }
 
         
+        return json([
+            'code' => 0,
+            'msg' => '',
+            'data' => ''
+        ]);
     }
 
-    // //获取培训列表
-    // public function getReal(){
-    //     $coursemodel = new courseModel();
-    //     $data = $coursemodel->where('is_online',0)->select();
-    //     return json($data);
-    // }
 
-    //培训报名
-    public function apply()
-    {
-        // $post = $this->request->post();
-        // $token = $this->request->cookie('token');
-        // dump($token);die;
-        //  if ($token) {
-        $uid = 1;
-        $b = new BuyPmodel();
-        $b->name = 'test'; //$post['name'];
-        $b->user_id = $uid;
-        $b->phone = '13363115555'; //$post['phone'];
-        $b->course_id = 44; ///$post['course_id'];
-        $b->content = '真不错'; //$post['content'];
-        $ret = Db::name('buy_course')->where([
-            'user_id' => $uid,
-            'course_id' => 74
-        ])->find();
-        if (!$ret) {
-            if ($b->allowField(true)->save()) {
-                return json(['msg' => '成功']);
-            } else {
-                return Db::getLastSql();
-            }
-        } else {
-            return json(['msg' => '不能重复报名']);
-        }
-        // } 
+    public function apply(){
+        $uid = 77;
+
     }
 
     //获取培训
@@ -267,16 +281,16 @@ class Course extends Login
      * @param  $cid 课程id
      * @return bool
      */
-    public function is_toll($uid, $cid,$status)
+    public function is_toll($uid, $cid, $status)
     {
-        if($status == 1){
+        if ($status == 1) {
             $retsult = Db::name('buy_course')->field('id')->where('user_id', $uid)->where('course_info_id', $cid)->find();
             if (!empty($retsult)) {
                 return true;
             } else {
                 return false;
             }
-        }elseif($status == 0){
+        } elseif ($status == 0) {
             $retsult = Db::name('buy_plan')->field('id')->where('user_id', $uid)->where('plan_id', $cid)->find();
             if (!empty($retsult)) {
                 return true;
@@ -284,6 +298,5 @@ class Course extends Login
                 return false;
             }
         }
-      
     }
 }

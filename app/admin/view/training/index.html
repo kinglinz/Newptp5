@@ -51,7 +51,7 @@
     <table class="layui-table" lay-size="sm">
       
       <colgroup>
-        <col width="50">
+        <col width="250">
         <col width="150">
         <col width="500">
         <col width="200">
@@ -72,14 +72,14 @@
         {volist name="course" id="vo"}
         <tr>
           <td>{$vo.title}</td>
-          <td><span style="font-weight:500;"></span>{$vo.course_id}</td>
+          <td><span style="font-weight:500;"></span>{$vo.plan_id}</td>
           <td>{$vo.class_hour}</td>
           <td>{$vo.class}</td>
           <td>{$vo.location}</td>
           <td class="operation-menu">
             <div class="layui-btn-group">
               <a href="{:url('admin/training/sign')}" class="layui-btn layui-btn-xs a_menu layui-btn-primary" style="margin-right: 0;font-size:12px;"><i class="layui-icon">签到</i></a>
-              <a href="{:url('admin/training/score')}" class="layui-btn layui-btn-xs a_menu layui-btn-primary" style="margin-right: 0;font-size:12px;"><i class="layui-icon">分数</i></a>
+              <a href="{:url('admin/training/score',['id'=>$vo.plan_id])}" class="layui-btn layui-btn-xs a_menu layui-btn-primary" style="margin-right: 0;font-size:12px;"><i class="layui-icon">分数</i></a>
               <a href="{:url('admin/training/grade')}" class="layui-btn layui-btn-xs a_menu layui-btn-primary" style="margin-right: 0;font-size:12px;"><i class="layui-icon">成绩</i></a>
               <a href="{:url('admin/training/teacher')}" class="layui-btn layui-btn-xs a_menu layui-btn-primary" style="margin-right: 0;font-size:12px;"><i class="layui-icon">教师评分</i></a>
             </div>
