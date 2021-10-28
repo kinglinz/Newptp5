@@ -7,7 +7,7 @@ use app\admin\model\Course as CourseModel;
 use app\admin\model\CourseCate as CourseCateModel;
 
 use think\Db;
-
+use think\Request;
 
 class CourseCate extends Permissions{
     public function index(){
@@ -78,6 +78,20 @@ class CourseCate extends Permissions{
                 }
             } else {          
                 return $this->fetch();
+            }
+        }
+    }
+
+    public function delete(Request $request){
+        $id = $request->get('id');
+        if(empty($id)){
+            return json(['code' => -1,'msg' => 'id不正确']);
+        }else{
+            $ret = Db::execute("DELETE FROM tplay_course_cate WHERE id=?",[$id]);
+            if(!empty($ret)){
+                return $this->success('删除成功');
+            }else{
+                return $this->error("删除失败");
             }
         }
     }

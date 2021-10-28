@@ -4,15 +4,14 @@ namespace app\admin\controller;
 
 use think\Controller;
 use app\service\ExportExcel;
-use app\admin\model\BuyCourse as BcourseModel;
-use Exception;
+use app\admin\model\BuyPlan as BuyPlanModel;
 
 //报名管理
 class Applymanage extends Controller
 {
     public function index()
     {
-        $model = new BcourseModel();
+        $model = new BuyPlanModel();
         $post = $this->request->post();
         //搜索参数
         if (isset($post['keywords']) and !empty($post['keywords'])) {

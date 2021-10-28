@@ -8,11 +8,9 @@ use app\user\model\User as UserModel;
 
 class Test extends Controller{
     public function index(){
-        
-        for($i=0;$i<1000;$i++){
-             $user = new UserModel();
-             $user->allowField(true)->save(['username'=>'admin'.$i,'password'=>'123456','profile_id'=>1]);
-           
-        }
+        $arr1 = ['1' => 'a', '2' => 'b'];
+        $arr2 = array();
+        array_push($arr2,$arr1);
+        dump($arr2);
     }
 }

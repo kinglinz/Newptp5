@@ -44,9 +44,10 @@
     <form class="layui-form" action="{:url('admin/exams/publish')}" method="post" id="admin">
       <div class="layui-form-item" style="float: left;">
         <div class="layui-input-inline">
+
           <label class="layui-form-label">课程分类</label>
           <div class="layui-input-block" style="max-width:600px;" class="layui-form-item">
-            <select class="layui-form-item" name="course_id" id="selc" lay-filter="demo">
+            <select class="layui-form-item" name="course_id" id="selc" lay-filter="selcc">
               <option value="" selected="">请选择</option>
               {volist name="data" id="vo"}
               <option value="{$vo.id}">{$vo.name}</option>
@@ -55,15 +56,11 @@
           </div>
         </div>
 
-        <div class="layui-input-inline">
-          <label class="layui-form-label">课时分类</label>
-          <div class="layui-input-block" style="max-width:600px;" class="layui-form-item">
-            <select class="layui-form-item" name="course_hour" id="sel" lay-filter="demo">
-
+        <div class="layui-input-inline" style="display: none;" id="hour">
+          <label class="layui-form-label">课时</label>
+          <div class="layui-input-block" style="max-width:600px;" class="layui-form-item" >
+            <select class="layui-form-item" name="course_hour"  lay-filter="demo" id="selcid">
               <option value="" selected="">请选择</option>
-              {volist name="data" id="vo"}
-              <option value="{$vo.id}">{$vo.name}</option>
-              {/volist}
             </select>
           </div>
         </div>
@@ -103,7 +100,7 @@
         <div style="align-content: center; border: 1px solid red;"> <img src="__PUBLIC__/2.jpg" /></div>
 
       </div>
-      <div style="align-content: center;border: 1px solid red;">
+      <div style=" margin: 0 auto;align-content: center;border: 1px solid red; display: block;">
         <button type="button" class="layui-btn" id="go">确定 </button>
         <button type="button" class="layui-btn" onclick="layer.closeAll();">取消</button>
       </div>
@@ -304,14 +301,9 @@
         form.render();
       });
     </script>
-
-
-    <script>
-
-    </script>
   </div>
 </body>
-<select lay-filter="demo" lay-verify="required">
+
 
   <script>
     layui.use(['layer', 'jquery', 'form'], function () {
@@ -319,14 +311,30 @@
         $ = layui.jquery,
         form = layui.form;
 
-      form.on('select(demo)', function (data) {
-        if (data.value == 1) {
-          $("#searchSessionNum").attr("disabled", "true");
-          form.render('select');
-        } else {
-          $("#searchSessionNum").removeAttr("disabled");
+      form.on('select(selcc)', function (data) {
+        $("#selcid").empty();
+        if ($("#selc").val() != '') {
+          $('#hour').show(); 
+           var courseid = $('#selc').val();
+           $.ajax({
+             url:'{:url("admin/exams/getlist")}',
+             type:'post',
+             data:{'id': courseid},
+             success:function(res){
+              $('#selcid').append("<option value='' selected='selected'>请选择</option>");
+                for(let i = 0; i < res.length; i++){
+                  $('#selcid').append("<option value='"+ res[i].id +"'>"+res[i].name+"</option>");
+                  form.render('select');
+                }
+             }
+           });          
+        } else{
+          $('#selcid').val('');
+          $('#hour').hide();
           form.render('select');
         }
+      
+        
       });
     });
   </script>

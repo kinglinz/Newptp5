@@ -9,8 +9,9 @@ use app\service\ExportExcel;
 use app\admin\model\CourseInfo as CourseInfoModel;
 use app\admin\model\Course as CourseModel;
 use app\admin\model\Exams as ExamsModel;
-use Exception;
 
+use Exception;
+use think\Request;
 
 class Exams extends  Permissions
 {
@@ -83,7 +84,11 @@ class Exams extends  Permissions
         if ($this->request->isPost()) {
             $post = $this->request->post();
             if (empty($post['course_id'])) {
-                return   json(['code' => -1, 'msg' => '请选择练习分类']);
+                return   json(['code' => -1, 'msg' => '请选择分类']);
+            }
+
+            if (empty($post['course_hour'])) {
+                return   json(['code' => -1, 'msg' => '请选择课时']);
             }
             $arr = array();
             $test = round((count($post) - 2) / 6);
@@ -97,10 +102,11 @@ class Exams extends  Permissions
                 $arr[$j]['d'] = $post['txtd' . $i];
                 $arr[$j]['da'] = $post['da' . $i];
                 $arr[$j]['course_id'] = $post['course_id'];
+                $arr[$j]['course_info_id'] = $post['course_hour'];
                 $j++;
             }
             try {
-                $result = $this->checkData($arr, $post['course_id']);
+                $result = $this->checkData($arr, $post['course_id'],$post['course_hour']);
             } catch (Exception $ex) {
                 return json(['code' => -1, 'msg' => $ex->getMessage()]);
             }
@@ -113,7 +119,10 @@ class Exams extends  Permissions
         } else {
             $courseModel = new CourseModel();
             $data = $courseModel->field('id,name')->select();
+            $courseInfo = new CourseInfoModel();
+            // $hour = $courseInfo->select();
             $this->assign("data", $data);
+            // $this->assign("hour", $hour);
             return $this->fetch();
         }
     }
@@ -126,13 +135,17 @@ class Exams extends  Permissions
     {
         $post = $this->request->post();
         if (empty($post['course_id'])) {
-            return   json(['code' => -1, 'msg' => '请选择练习分类']);
+            return   json(['code' => -1, 'msg' => '请选择分类']);
+        }
+
+        if (empty($post['course_hour'])) {
+            return   json(['code' => -1, 'msg' => '请选择课时']);
         }
         $execl = new ExportExcel();
         $fileinfo = request()->file('file')->getInfo();
         try {
             $data =  $execl->doImport($fileinfo['tmp_name']);
-            $result = $this->checkData($data, $post['course_id']);
+            $result = $this->checkData($data, $post['course_id'],$post['course_hour']);
         } catch (Exception $ex) {
             return json(['msg' => $ex->getMessage(), 'code' => $ex->getCode()]);
         }
@@ -153,18 +166,18 @@ class Exams extends  Permissions
      * @return array
      */
 
-    private function checkData($data, $course_id)
+    private function checkData($data, $course_id,$course_info_id)
     {
         $i = 0;
-
+       // dump($data);die;
         foreach ($data as $temp) {
-            $arr = $this->arrk2num($temp);
+            $arr = $this->arrk2num($temp); 
             $status = $this->checkArr($arr);
 
-            if (empty($arr) || count($arr) < 4 || $status['status']) {
+            if (empty($arr) || count($arr) < 6 || $status['status']) {
                 continue;
             } else {
-                if (4 == $status['tmp']) {
+                if (6 == $status['tmp']) {
                     $result[$i]['descrption'] = $arr[0];
                     $result[$i]['a'] = $arr[1] ;
                     $result[$i]['b'] = $arr[2];
@@ -173,7 +186,8 @@ class Exams extends  Permissions
                     $result[$i]['da'] = $arr[5];
                     $result[$i]['status'] = 0;
                     $result[$i]['course_id'] = $course_id;
-                    // dump($result);
+                    $result[$i]['course_info_id'] = $course_info_id;
+
                 } else {
                     $result[$i]['descrption'] = $arr[0];
                     $result[$i]['a'] = $arr[1];
@@ -182,6 +196,7 @@ class Exams extends  Permissions
                     $result[$i]['d'] = $arr[4];
                     $result[$i]['da'] = $arr[5];
                     $result[$i]['course_id'] = $course_id;
+                    $result[$i]['course_info_id'] = $course_info_id;
                     if (strlen($arr[5]) > 1) {
                         $result[$i]['status'] = 2;
                     } else {
@@ -224,7 +239,7 @@ class Exams extends  Permissions
         }
         //得到有效数据个数  小于4 为无效数据
         $tmp1['tmp'] = count($array) - $tmp1['count'];
-        if ($tmp1['tmp'] < 4)
+        if ($tmp1['tmp'] < 6)
             $tmp1['status'] = true;
 
         return $tmp1;
@@ -242,5 +257,12 @@ class Exams extends  Permissions
         }
 
         return $newarr;
+    }
+
+    public function getlist(Request $request){
+        $id = $request->param('id');
+        $courseInfo = new CourseInfoModel();
+        $ret = $courseInfo->field('id,name')->where('course_id',$id)->select();
+        return $ret;
     }
 }
