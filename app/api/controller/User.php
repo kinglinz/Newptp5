@@ -5,7 +5,6 @@ namespace app\api\controller;
 use app\user\model\User as userModel;
 
 use app\user\model\Profile as ProfileModel;
-use think\Cookie;
 use think\Db;
 
 class User extends \app\jk\controller\Login
@@ -18,13 +17,13 @@ class User extends \app\jk\controller\Login
         if ($this->request->isPost()) {
             //更改注册资料
             $post = $this->request->post();
-            $userid = $this->token($this->request->cookie('token'));
+            $userid = 98;//$this->token($this->request->cookie('token'));
             $usermodel = userModel::get($userid);
-            if ($post) {
+            if (!empty($post) && !empty($usermodel)) {
                 $promodel = new ProfileModel();
                 $ide = $promodel->where(['identity' => $post['identity']])->find();
                 if ($ide) {
-                    return json(['type' => 'error', 'errormsg' => '证件已被注册'], 401);
+                    return json(['code' => -1, 'msg' => '证件已被注册','data'=>'']);
                 }
                 $validate = new \think\Validate([
                     ['name', 'require', '请填写姓名'],
@@ -35,7 +34,7 @@ class User extends \app\jk\controller\Login
                 ]);
 
                 if (!$validate->check($post)) {
-                    return json(['type' => 'error', 'msg' => $validate->getError()]);
+                    return json(['code' => -1, 'msg' => $validate->getError(),'data'=>'']);
                 }
                 $promodel->name = $post['name'];
                 $promodel->addr = $post['addr'];
@@ -46,80 +45,80 @@ class User extends \app\jk\controller\Login
                 $ret = $usermodel->profile()->save($promodel);
                 
                 if ($ret) {
-                    return json(['type' => 'success', 'msg' => '修改成功' ], 200);
+                    return json(['code' => 0, 'msg' =>'' ,'data'=>'']);
                 }
             } else {
-                return json(['type' => 'error', 'msg' => '参数不正确'], 401);
+                return json(['code' => -1, 'msg' =>'参数不正确','data'=>'']);
             }
         } else {
             //获取资料
-            $token = $this->request->cookie('token');
-            $id = $this->token($token);
-            $user = new userModel();
-            return json($user->get($id)->profile()->find());
-        }
-    }
-
-
-    
-
-
-    
-    public function reg()
-    {
-        if ($this->request->param('username')) {
-            $user = new userModel();
-            if ($user->allowField(true)->save($this->request->get())) {
-                 $enuid = $this->encode($user->id);
-                if ($user->isUpdate(true)->allowField(true)->save(['openid' => $enuid])) {
-                    $promodel = new ProfileModel();
-                    $promodel->name ='name';
-                    $promodel->addr = 'addr';
-                    $promodel->idpic = 'idpic';
-                    $promodel->edu = 'edu';
-                    $promodel->identity = 'identity';
-                    $promodel->phone = 'phone';
-
-                    $ret = $user->profile()->save($promodel);
-                    $pid = $promodel->getLastInsID();            
-                    $t = $user->allowField(true)->save(['profile_id' => $pid],['id' => $user->id]);          
-                    if($t && $ret){                       
-                        Cookie::set('token', $enuid);
-                        return json(['code' => 200, 'msg' => '注测成功']);
-                    }else{
-                        return json(['1' => $t,'2' => $user->getError()]);
-                    }
-                  
-                } else {
-                    return json(['code' => 400, 'msg' => '注测失败', 'error' =>
-                    $user->getLastSql(), 'enuid' => $user->getError()]);
-                }
+            //$token = $this->request->cookie('token');
+            $uid = 88; //$this->token();
+            $usermodel = new userModel();
+            $user = $usermodel->get($uid);
+            if(!empty($user)){
+                $user['idpic'] = 'www.baidu.com' . str_replace('\\', '/', $user['idpic']);
+                return json($user->profile);
+            } else{
+                return json([
+                    'code' => -1,
+                    'msg' => '请先登录',
+                    'data' => ''
+                ]);
             }
-        } else {
-            return json(['code' => -1, 'msg' => 'id不正确']);
+            
         }
     }
 
-    public function log()
+
+    
+
+
+    
+    // public function reg()
+    // {
+    //     if ($this->request->param('username')) {
+    //         $user = new userModel();
+    //         if ($user->allowField(true)->save($this->request->get())) {
+    //              $enuid = $this->encode($user->id);
+    //             if ($user->isUpdate(true)->allowField(true)->save(['openid' => $enuid])) {
+    //                 $promodel = new ProfileModel();
+    //                 $promodel->name ='name';
+    //                 $promodel->addr = 'addr';
+    //                 $promodel->idpic = 'idpic';
+    //                 $promodel->edu = 'edu';
+    //                 $promodel->identity = 'identity';
+    //                 $promodel->phone = 'phone';
+
+    //                 $ret = $user->profile()->save($promodel);
+    //                 $pid = $promodel->getLastInsID();            
+    //                 $t = $user->allowField(true)->save(['profile_id' => $pid],['id' => $user->id]);          
+    //                 if($t && $ret){                       
+    //                     Cookie::set('token', $enuid);
+    //                     return json(['code' => 200, 'msg' => '注测成功']);
+    //                 }else{
+    //                     return json(['1' => $t,'2' => $user->getError()]);
+    //                 }
+                  
+    //             } else {
+    //                 return json(['code' => 400, 'msg' => '注测失败', 'error' =>
+    //                 $user->getLastSql(), 'enuid' => $user->getError()]);
+    //             }
+    //         }
+    //     } else {
+    //         return json(['code' => -1, 'msg' => 'id不正确']);
+    //     }
+    // }
+
+    public function loginup()
     {
-        $get = $this->request->get();
-        $username = $get['username'];
-        $password = $get['password'];
-        $ret = Db::query(
-            "SELECT openid from tplay_user WHERE username='$username' AND password='$password'"
-        );
-        if ($ret) {
-            Cookie::set('token', $ret[0]['openid'], 3600);
-            return json(['code' => 200, 'msg' => '登录成功']);
-        } else {
-            Cookie::clear();
-            return json(['code' => 200, 'msg' => '登录失败', 'jump' => url('reg')]);
-        }
+        return $this->login();
     }
 
-    public function getScore(){
-        $uid = 74;
-        $cid = 44;
+    //我的培训
+    public function getplan(){
+        $uid = 88;
+        $cid = 1; //培训安排
         $ret = Db::query("SELECT * FROM tplay_buy_plan WHERE `user_id`=? AND plan_id=?",[$uid,$cid]);
         if($ret){
             return json([

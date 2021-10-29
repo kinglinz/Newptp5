@@ -262,7 +262,7 @@ class Exams extends  Permissions
     public function getlist(Request $request){
         $id = $request->param('id');
         $courseInfo = new CourseInfoModel();
-        $ret = $courseInfo->field('id,name')->where('course_id',$id)->select();
-        return $ret;
+        $ret = $courseInfo->field('id,name')->order('name')->where('course_id',$id)->select();
+        return json($ret);
     }
 }

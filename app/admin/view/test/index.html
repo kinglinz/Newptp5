@@ -1,12 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+
 <body>
-    
+        <div>
+            <select style="width: 200px;" id="selc">
+                <option value="">请选择</option>
+                <option value="50">JAVA</option>
+                <option value="49">C++</option>
+            </select>
+            <select style="width: 200px;" id="sub">
+            </select>
+        </div>
 </body>
+<script>
+    var sel = document.getElementById('selc');
+    var sub = document.getElementById('sub');
+    sel.addEventListener('change', function () {
+        var cid = sel.value;
+        //重新选择清空选项
+        sub.options.length = 0;
+        var request = new XMLHttpRequest();
+
+        request.onreadystatechange = function () {
+            if (request.readyState == 4) {
+                if (request.status === 200) {
+                    let temp = JSON.parse(request.responseText);            
+                    for (let i = 0; i < temp.length; i++) {
+                        let op = document.createElement('option');
+                        op.setAttribute("value",temp[i].id);
+                        op.appendChild(document.createTextNode(temp[i].name));
+                        sub.appendChild(op);
+                    }
+                }
+            }
+        }
+
+        request.open('get', '{:url("admin/exams/getlist")}' + '?id=' + cid);
+        request.send();
+    });
+
+
+</script>
+
 </html>

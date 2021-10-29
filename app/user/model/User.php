@@ -15,4 +15,8 @@
         public function buy(){
             return $this->hasMany('app\model\Buycourse');
         }
+
+        // public function buyplan(){
+        //     return $this->
+        // }
     }

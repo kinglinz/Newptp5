@@ -58,8 +58,8 @@
 
         <div class="layui-input-inline" style="display: none;" id="hour">
           <label class="layui-form-label">课时</label>
-          <div class="layui-input-block" style="max-width:600px;" class="layui-form-item" >
-            <select class="layui-form-item" name="course_hour"  lay-filter="demo" id="selcid">
+          <div class="layui-input-block" style="max-width:600px;" class="layui-form-item">
+            <select class="layui-form-item" name="course_hour" lay-filter="demo" id="selcid">
               <option value="" selected="">请选择</option>
             </select>
           </div>
@@ -305,38 +305,38 @@
 </body>
 
 
-  <script>
-    layui.use(['layer', 'jquery', 'form'], function () {
-      var layer = layui.layer,
-        $ = layui.jquery,
-        form = layui.form;
+<script>
+  layui.use(['layer', 'jquery', 'form'], function () {
+    var layer = layui.layer,
+      $ = layui.jquery,
+      form = layui.form;
 
-      form.on('select(selcc)', function (data) {
-        $("#selcid").empty();
-        if ($("#selc").val() != '') {
-          $('#hour').show(); 
-           var courseid = $('#selc').val();
-           $.ajax({
-             url:'{:url("admin/exams/getlist")}',
-             type:'post',
-             data:{'id': courseid},
-             success:function(res){
-              $('#selcid').append("<option value='' selected='selected'>请选择</option>");
-                for(let i = 0; i < res.length; i++){
-                  $('#selcid').append("<option value='"+ res[i].id +"'>"+res[i].name+"</option>");
-                  form.render('select');
-                }
-             }
-           });          
-        } else{
-          $('#selcid').val('');
-          $('#hour').hide();
-          form.render('select');
-        }
-      
-        
-      });
+    form.on('select(selcc)', function (data) {
+      $("#selcid").empty();
+      if ($("#selc").val() != '') {
+        $('#hour').show();
+        var courseid = $('#selc').val();
+        $.ajax({
+          url: '{:url("admin/exams/getlist")}',
+          type: 'post',
+          data: { 'id': courseid },
+          success: function (res) {
+            $('#selcid').append("<option value='' selected='selected'>请选择</option>");
+            for (let i = 0; i < res.length; i++) {
+              $('#selcid').append("<option value='" + res[i].id + "'>" + res[i].name + "</option>");
+              form.render('select');
+            }
+          }
+        });
+      } else {
+        $('#selcid').val('');
+        $('#hour').hide();
+        form.render('select');
+      }
+
+
     });
-  </script>
+  });
+</script>
 
 </html>
